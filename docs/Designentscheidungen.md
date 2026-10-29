@@ -13,7 +13,7 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 - **Button-Stil:** pro Set wählbar (Balken, Voll, Betont).
 - **Import/Export:** Sets als Datei (.shortcutpad) sichern, teilen und auf anderem Mac importieren (als neues Set oder ersetzen).
 - **Kürzel auf dem Button:** klein unter der Beschriftung, pro Set abschaltbar.
-- **Farben:** Gelb entfällt, stattdessen Hellorange (#E8884A, dunkle Schrift). Neun Farben bleiben.
+- **Farben:** Gelb und Hellorange entfallen. Acht Farben: Rot, Orange, Pink, Blau, Indigo, Grün, Türkis, Grau.
 
 ## Regeln aus dem Briefing
 
@@ -25,7 +25,7 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 
 - Stile pro Set: Balken (dunkel mit Farbbalken), Voll, Betont (wichtige Buttons voll).
 - Mindestgröße: 80 pt iPhone, 128 pt iPad. Spaltenzahl = so viele wie mit Mindestgröße passen, Rest scrollt.
-- Neun Farben, Weiß-auf-Farbe mindestens 4,5:1 (Hellorange mit dunkler Schrift).
+- Acht Farben, weiße Schrift auf Farbe mindestens 4,5:1.
 - Rückmeldung: Haptik, gedrückter Button, Toast mit gesendetem Kürzel; Zustände für Offline und fehlende Freigabe.
 
 ## Technische Folgen für die Umsetzung

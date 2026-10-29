@@ -180,7 +180,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #5B9B
       <div>
         <span class="fl">Farbe</span>
         <div style="display:flex;flex-wrap:wrap;gap:10px">
-          <sc-for list="{{swatches}}" as="w" hint-placeholder-count="9">
+          <sc-for list="{{swatches}}" as="w" hint-placeholder-count="8">
             <button aria-label="{{w.name}}" title="{{w.name}}" style="{{w.style}}" onClick="{{w.pick}}"></button>
           </sc-for>
         </div>
@@ -209,8 +209,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #5B9B
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":880}}'>
-const COLORS={rot:'#E11D48',orange:'#CC420C',hellorange:'#E8884A',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',grau:'#64748B'};
-const NAMES={rot:'Rot',orange:'Orange',hellorange:'Hellorange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',grau:'Grau'};
+const COLORS={rot:'#E11D48',orange:'#CC420C',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',grau:'#64748B'};
+const NAMES={rot:'Rot',orange:'Orange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',grau:'Grau'};
 const GROUPS={Datei:'blau',Bearbeiten:'indigo',Ebenen:'orange',Auswahl:'rot',Werkzeug:'gruen',Ansicht:'tuerkis'};
 const BTN=[['Datei','Neu','⌘N'],['Datei','Speichern','⌘S',1],['Datei','Speichern als','⇧⌘S'],['Datei','Für Web','⌥⇧⌘S'],['Bearbeiten','Zurück','⌘Z',1],['Bearbeiten','Vor','⇧⌘Z'],['Bearbeiten','Verlauf','⌥⌘Z'],['Bearbeiten','Kopieren','⌘C'],['Bearbeiten','Einfügen','⌘V'],['Ebenen','Neue Ebene','⇧⌘N',1],['Ebenen','Duplikat','⌘J'],['Ebenen','Gruppe','⌘G'],['Ebenen','Maske','⌥⌘G'],['Ebenen','Reduzieren','⇧⌘E'],['Auswahl','Alles','⌘A',1],['Auswahl','Aufheben','⌘D'],['Auswahl','Umkehren','⇧⌘I'],['Auswahl','Verfeinern','⌥⌘R'],['Auswahl','Transform','⌘T'],['Werkzeug','Pinsel','B',1],['Werkzeug','Radierer','E'],['Werkzeug','Bewegen','V'],['Werkzeug','Lasso','L'],['Werkzeug','Farben tauschen','X'],['Ansicht','Einpassen','⌘0',1],['Ansicht','100 %','⌘1'],['Ansicht','Lineale','⌘R'],['Ansicht','Bildgröße','⌥⌘I']];
 const DEV={
@@ -238,7 +238,7 @@ class Component extends DCLogic{
       const key=over[i]||GROUPS[b[0]];
       const c=COLORS[key];
       const filled=variant==='fill'||(variant==='mix'&&b[3]);
-      const dark=key==='hellorange';
+      const dark=false;
       const base=filled?'background:'+c+';color:'+(dark?'#1F1206':'#fff'):'background:#25262B;color:#F2F3F5';
       const kc=filled?(dark?'color:rgba(31,18,6,.8)':'color:rgba(255,255,255,.88)'):'color:#A3A6AF';
       return {base:base,label:labs[i]!=null?labs[i]:b[1],keys:b[2],lf:'font-size:'+lf+'px',kf:kc+';font-size:'+kf+'px',bar:filled?'display:none':'background:'+c,key:key};

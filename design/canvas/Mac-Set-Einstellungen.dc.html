@@ -52,7 +52,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #5B9B
   <div>
     <span class="fl">Set-Farbe</span>
     <div style="display:flex;gap:10px">
-      <sc-for list="{{swatches}}" as="w" hint-placeholder-count="9">
+      <sc-for list="{{swatches}}" as="w" hint-placeholder-count="8">
         <button aria-label="{{w.name}}" title="{{w.name}}" style="{{w.style}}"></button>
       </sc-for>
     </div>
@@ -102,8 +102,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #5B9B
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":520,"height":720}}'>
-const COLORS={rot:'#E11D48',orange:'#CC420C',hellorange:'#E8884A',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',grau:'#64748B'};
-const NAMES={rot:'Rot',orange:'Orange',hellorange:'Hellorange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',grau:'Grau'};
+const COLORS={rot:'#E11D48',orange:'#CC420C',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',grau:'#64748B'};
+const NAMES={rot:'Rot',orange:'Orange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',grau:'Grau'};
 const MINI=['blau','indigo','orange','rot','gruen','tuerkis'];
 class Component extends DCLogic{
   renderVals(){
