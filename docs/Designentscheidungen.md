@@ -1,0 +1,32 @@
+# ShortcutPad – Designentscheidungen (Stand 29.10.2026)
+
+Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/canvas/`)
+
+## Festgelegt (mit Jens abgestimmt)
+
+- **Format:** klickbarer Canvas mit Artboards für Mac-App, iPhone/iPad (hoch/quer), Zustände.
+- **Programmbezug:** Sets sind einem Programm zugeordnet und wechseln automatisch mit dem vordersten Mac-Programm.
+  Manuell wählen und per Pin „fixieren“ geht jederzeit.
+- **Gruppierung:** nur über Farbe, keine Abschnittsüberschriften. Gruppen sind benannte Farb-Tags; ein Button kann die
+  Gruppenfarbe überschreiben. Neuanordnen per Ziehen in der Mac-Vorschau.
+- **Mac-App:** Fenster-App (Sets links, Pad-Vorschau Mitte, Button-Eigenschaften rechts) plus Menüleisten-Symbol.
+
+## Regeln aus dem Briefing
+
+- Sets, Buttons, Kürzel, Farben werden **ausschließlich am Mac** bearbeitet. iOS-App und Webseite zeigen nur an und lösen aus.
+- Webseite und iOS-App haben dieselbe Optik, responsiv für alle Größen und Ausrichtungen.
+- Buttons haben **kein Symbol**, nur Text (Beschriftung) und Farbe. Optional steht das Kürzel klein darunter.
+
+## Entwurf im Canvas (noch zu bestätigen)
+
+- Stile pro Set: Balken (dunkel mit Farbbalken), Voll, Betont (wichtige Buttons voll).
+- Mindestgröße: 80 pt iPhone, 128 pt iPad. Spaltenzahl = so viele wie mit Mindestgröße passen, Rest scrollt.
+- Neun Farben, Weiß-auf-Farbe mindestens 4,5:1 (Gelb mit dunkler Schrift).
+- Rückmeldung: Haptik, gedrückter Button, Toast mit gesendetem Kürzel; Zustände für Offline und fehlende Freigabe.
+
+## Technische Folgen für die Umsetzung
+
+- Datenhaltung auf dem Mac (JSON in Application Support). Neue Routen/Nachrichten: Sets abrufen, aktives Set melden.
+  `executeShortcut` bleibt der einzige Auslöse-Pfad (USB und Web).
+- Das Kürzel-Modell bekommt Beschriftung, Farbe, Gruppe; `Shared/Protocol.swift` wird um Set/Button erweitert.
+- Offen laut Projektprotokoll: Zeichen mit Zusatztaste („/“, „#“) im Aufnahme-Dialog warnen statt still scheitern.

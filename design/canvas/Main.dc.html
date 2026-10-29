@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Mac Editor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;font-family:'Schibsted Grotesk',-apple-system,'SF Pro Text',system-ui,sans-serif;color:#F2F3F5;-webkit-font-smoothing:antialiased}
+button,input{font-family:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #5B9BFF;outline-offset:2px}
+.mono{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace}
+.fl{display:block;margin-bottom:8px;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9A9DA7}
+.seg{display:inline-flex;gap:2px;padding:3px;background:#2A2C32;border-radius:9px}
+.segb{border:0;border-radius:7px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn-p{background:#0B63F0;color:#fff}
+.btn-s{background:#2F3138;color:#E6E8EC}
+.btn-d{background:transparent;color:#FF7A8A;border:1px solid #5A2A33}
+.inp{width:100%;box-sizing:border-box;background:#101114;border:1px solid #34363D;border-radius:8px;color:#F2F3F5;padding:10px 12px;font-size:14px}
+.cap{min-width:36px;height:38px;padding:0 9px;box-sizing:border-box;border-radius:8px;background:#2B2D34;border:1px solid #3B3E47;box-shadow:0 2px 0 #121316;display:inline-flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:17px;font-weight:500;color:#F2F3F5}
+.setrow{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;padding:9px 10px;border:0;border-radius:9px;text-align:left;color:inherit;cursor:pointer}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;background:#25262B;font-size:12.5px;font-weight:600;color:#D5D7DD}
+.screen{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(120% 50% at 50% 0%,rgba(11,99,240,.16),rgba(11,99,240,0) 70%),#0E0F12}
+.tile{position:relative;aspect-ratio:1/1;border:0;border-radius:12px;padding:5px 4px 10px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 5px 12px rgba(0,0,0,.35)}
+.tl{font-weight:700;line-height:1.15;text-align:center;overflow-wrap:anywhere;text-wrap:balance}
+.tk{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;letter-spacing:.02em}
+.tb{position:absolute;left:20%;right:20%;bottom:6px;height:3px;border-radius:2px}
+</style>
+</helmet>
+<div style="width:1360px;height:880px;display:flex;flex-direction:column;background:#1E1F23;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px #34363D,0 30px 70px rgba(0,0,0,.55)">
+
+  <div style="height:52px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;background:#232429;border-bottom:1px solid #2E3036">
+    <div style="display:flex;gap:8px" aria-hidden="true">
+      <span style="width:12px;height:12px;border-radius:50%;background:#FF5F57"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#FEBC2E"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#28C840"></span>
+    </div>
+    <div style="font-size:13px;font-weight:600;color:#C9CBD2">ShortcutPad</div>
+    <div style="flex:1"></div>
+    <a href="Mac-Verbindung.dc.html" style="display:inline-flex;align-items:center;gap:10px;padding:6px 14px;border-radius:999px;background:#2A2C32;color:#D5D7DD;font-size:12.5px;font-weight:500;text-decoration:none">
+      <span style="width:8px;height:8px;border-radius:50%;background:#4ADE80"></span>
+      <span>iPad Pro · USB</span>
+      <span style="width:1px;height:14px;background:#454851"></span>
+      <span>Web · 1 Gerät</span>
+    </a>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex">
+
+    <div style="width:240px;flex:none;display:flex;flex-direction:column;background:#1A1B1F;border-right:1px solid #2E3036">
+      <div class="mono" style="padding:20px 18px 10px;font-size:11px;letter-spacing:.12em;color:#9A9DA7">SETS</div>
+      <div style="display:flex;flex-direction:column;gap:2px;padding:0 10px">
+        <sc-for list="{{sets}}" as="s" hint-placeholder-count="5">
+          <button class="setrow" style="{{s.style}}">
+            <span style="{{s.dot}}"></span>
+            <span style="flex:1;min-width:0">
+              <span style="display:block;font-size:14px;font-weight:600">{{s.name}}</span>
+              <span class="mono" style="display:block;margin-top:1px;font-size:11px;color:#9A9DA7">{{s.app}}</span>
+            </span>
+            <sc-if value="{{s.live}}" hint-placeholder-val="{{false}}">
+              <span class="mono" style="display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:#4ADE80"><span style="width:6px;height:6px;border-radius:50%;background:#4ADE80"></span>aktiv</span>
+            </sc-if>
+          </button>
+        </sc-for>
+      </div>
+      <div style="margin-top:auto;padding:16px;display:flex;flex-direction:column;gap:12px">
+        <button class="btn btn-s" style="width:100%">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M7 2v10M2 7h10"/></svg>
+          Neues Set
+        </button>
+        <div style="font-size:11.5px;line-height:1.45;color:#9A9DA7">Buttons und Kürzel lassen sich nur hier bearbeiten. iPad, iPhone und die Webseite zeigen sie an.</div>
+      </div>
+    </div>
+
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:#1E1F23">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 28px 0">
+        <div style="min-width:0">
+          <div style="font-size:24px;font-weight:800;letter-spacing:-.01em">Photoshop</div>
+          <div style="margin-top:4px;font-size:13px;color:#9A9DA7">Adobe Photoshop 2026 · wechselt automatisch · 28 Buttons</div>
+        </div>
+        <div style="display:flex;gap:8px;flex:none">
+          <a href="Mac-Set-Einstellungen.dc.html" class="btn btn-s">Set-Einstellungen</a>
+          <button class="btn btn-p">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M7 2v10M2 7h10"/></svg>
+            Button
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 28px 0">
+        <div class="seg">
+          <sc-for list="{{devices}}" as="d" hint-placeholder-count="4">
+            <button class="segb" style="{{d.style}}" onClick="{{d.pick}}">{{d.label}}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="mono" style="font-size:11px;letter-spacing:.1em;color:#9A9DA7">STIL</span>
+          <div class="seg">
+            <sc-for list="{{variants}}" as="v" hint-placeholder-count="3">
+              <button class="segb" style="{{v.style}}" onClick="{{v.pick}}">{{v.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px 28px">
+        <div style="{{frame.outer}}">
+          <div class="screen" style="{{frame.inner}}">
+            <div style="{{frame.head}}">
+              <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700"><span style="width:8px;height:8px;border-radius:50%;background:#0B63F0"></span>Photoshop</span>
+              <span style="display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:#A3A6AF"><span style="width:6px;height:6px;border-radius:50%;background:#4ADE80"></span>Mac Studio</span>
+            </div>
+            <div style="{{frame.grid}}">
+              <sc-for list="{{tiles}}" as="t" hint-placeholder-count="12">
+                <button class="tile" style="{{t.style}}" onClick="{{t.pick}}">
+                  <sc-if value="{{t.drop}}" hint-placeholder-val="{{false}}">
+                    <span style="position:absolute;left:-6px;top:6px;bottom:6px;width:3px;border-radius:2px;background:#fff"></span>
+                  </sc-if>
+                  <span class="tl" style="{{t.lf}}">{{t.label}}</span>
+                  <span class="tk" style="{{t.kf}}">{{t.keys}}</span>
+                  <span class="tb" style="{{t.bar}}"></span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div class="mono" style="font-size:11.5px;color:#9A9DA7">{{frame.caption}}</div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 28px 18px">
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{groups}}" as="g" hint-placeholder-count="6">
+            <span class="chip"><span style="{{g.dot}}"></span>{{g.name}}<span class="mono" style="font-size:11px;color:#9A9DA7">{{g.count}}</span></span>
+          </sc-for>
+          <button class="chip" style="border:1px dashed #4A4D57;background:transparent;cursor:pointer">+ Gruppe</button>
+        </div>
+        <div style="font-size:11.5px;color:#9A9DA7;text-align:right;white-space:nowrap">Ziehen zum Anordnen · Klick zum Bearbeiten</div>
+      </div>
+    </div>
+
+    <div style="width:320px;flex:none;display:flex;flex-direction:column;gap:18px;padding:20px;box-sizing:border-box;background:#1A1B1F;border-left:1px solid #2E3036;overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font-size:15px;font-weight:700">Button</div>
+        <div class="mono" style="font-size:12px;color:#9A9DA7">{{sel.no}}</div>
+      </div>
+
+      <div style="display:flex;justify-content:center;padding:2px 0">
+        <div class="tile" style="{{sel.style}}">
+          <span class="tl" style="font-size:15px">{{sel.label}}</span>
+          <span class="tk" style="{{sel.kf}}">{{sel.keys}}</span>
+          <span class="tb" style="{{sel.bar}}"></span>
+        </div>
+      </div>
+
+      <div>
+        <label class="fl" for="lbl">Beschriftung</label>
+        <input id="lbl" class="inp" type="text" value="{{sel.label}}" onChange="{{onLabel}}">
+        <div style="margin-top:6px;font-size:11.5px;line-height:1.4;color:#9A9DA7">Kurz halten, höchstens zwei Zeilen. Kein Symbol, nur Text.</div>
+      </div>
+
+      <div>
+        <span class="fl">Kürzel</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <sc-for list="{{caps}}" as="c" hint-placeholder-count="3">
+            <span class="cap">{{c.k}}</span>
+          </sc-for>
+          <div style="flex:1"></div>
+          <a href="Mac-Kuerzel-aufnehmen.dc.html" class="btn btn-s">Aufnehmen</a>
+        </div>
+      </div>
+
+      <div>
+        <span class="fl">Farbe</span>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <sc-for list="{{swatches}}" as="w" hint-placeholder-count="9">
+            <button aria-label="{{w.name}}" title="{{w.name}}" style="{{w.style}}" onClick="{{w.pick}}"></button>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:8px">
+          <div style="font-size:12px;color:#B9BCC5">{{sel.colorHint}}</div>
+          <button class="btn btn-s" style="padding:5px 10px;font-size:12px" onClick="{{resetColor}}">Wie Gruppe</button>
+        </div>
+      </div>
+
+      <div>
+        <span class="fl">Gruppe</span>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#101114;border:1px solid #34363D;border-radius:8px">
+          <span style="{{sel.groupDot}}"></span>
+          <span style="flex:1;font-size:14px">{{sel.group}}</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#9A9DA7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
+        </div>
+      </div>
+
+      <div style="margin-top:auto;display:flex;gap:8px">
+        <button class="btn btn-s" style="flex:1">Am Mac testen</button>
+        <button class="btn btn-d">Löschen</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":880}}'>
+const COLORS={rot:'#E11D48',orange:'#CC420C',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',gelb:'#FBBF24',grau:'#64748B'};
+const NAMES={rot:'Rot',orange:'Orange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',gelb:'Gelb',grau:'Grau'};
+const GROUPS={Datei:'blau',Bearbeiten:'indigo',Ebenen:'orange',Auswahl:'rot',Werkzeug:'gruen',Ansicht:'tuerkis'};
+const BTN=[['Datei','Neu','⌘N'],['Datei','Speichern','⌘S',1],['Datei','Speichern als','⇧⌘S'],['Datei','Für Web','⌥⇧⌘S'],['Bearbeiten','Zurück','⌘Z',1],['Bearbeiten','Vor','⇧⌘Z'],['Bearbeiten','Verlauf','⌥⌘Z'],['Bearbeiten','Kopieren','⌘C'],['Bearbeiten','Einfügen','⌘V'],['Ebenen','Neue Ebene','⇧⌘N',1],['Ebenen','Duplikat','⌘J'],['Ebenen','Gruppe','⌘G'],['Ebenen','Maske','⌥⌘G'],['Ebenen','Reduzieren','⇧⌘E'],['Auswahl','Alles','⌘A',1],['Auswahl','Aufheben','⌘D'],['Auswahl','Umkehren','⇧⌘I'],['Auswahl','Verfeinern','⌥⌘R'],['Auswahl','Transform','⌘T'],['Werkzeug','Pinsel','B',1],['Werkzeug','Radierer','E'],['Werkzeug','Bewegen','V'],['Werkzeug','Lasso','L'],['Werkzeug','Farben tauschen','X'],['Ansicht','Einpassen','⌘0',1],['Ansicht','100 %','⌘1'],['Ansicht','Lineale','⌘R'],['Ansicht','Bildgröße','⌥⌘I']];
+const DEV={
+  iphone:{label:'iPhone hoch',cols:4,w:280,h:560,r:40,pad:12,gap:6,lf:10,kf:7.5,top:16,cap:'iPhone hoch · 4 Spalten · Mindestgröße 80 pt'},
+  iphoneL:{label:'iPhone quer',cols:8,w:640,h:300,r:34,pad:16,gap:6,lf:10,kf:7.5,top:10,cap:'iPhone quer · 8 Spalten · Mindestgröße 80 pt'},
+  ipad:{label:'iPad quer',cols:8,w:744,h:520,r:28,pad:18,gap:8,lf:11,kf:8.5,top:14,cap:'iPad quer · 8 Spalten · Mindestgröße 128 pt'},
+  ipadP:{label:'iPad hoch',cols:5,w:430,h:560,r:28,pad:16,gap:7,lf:11,kf:8.5,top:14,cap:'iPad hoch · 5 Spalten · Mindestgröße 128 pt'}
+};
+const DEV_ORDER=['iphone','iphoneL','ipad','ipadP'];
+const ACT='background:#4C4F59;color:#fff';
+const INACT='background:transparent;color:#B9BCC5';
+const LIFT=13;
+const DROP=11;
+class Component extends DCLogic{
+  renderVals(){
+    const st=this.state||{};
+    const sel=st.sel==null?9:st.sel;
+    const dev=st.device||'ipad';
+    const variant=st.variant||'bar';
+    const over=st.colors||{};
+    const labs=st.labels||{};
+    const D=DEV[dev];
+    const look=(i,lf,kf)=>{
+      const b=BTN[i];
+      const key=over[i]||GROUPS[b[0]];
+      const c=COLORS[key];
+      const filled=variant==='fill'||(variant==='mix'&&b[3]);
+      const dark=key==='gelb';
+      const base=filled?'background:'+c+';color:'+(dark?'#1A1405':'#fff'):'background:#25262B;color:#F2F3F5';
+      const kc=filled?(dark?'color:rgba(26,20,5,.8)':'color:rgba(255,255,255,.88)'):'color:#A3A6AF';
+      return {base:base,label:labs[i]!=null?labs[i]:b[1],keys:b[2],lf:'font-size:'+lf+'px',kf:kc+';font-size:'+kf+'px',bar:filled?'display:none':'background:'+c,key:key};
+    };
+    const tiles=BTN.map((b,i)=>{
+      const L=look(i,D.lf,D.kf);
+      let style=L.base;
+      if(i===sel)style+=';box-shadow:0 0 0 2px #0E0F12,0 0 0 4px #fff';
+      if(i===LIFT)style+=';transform:translate(-8px,-12px) scale(1.08) rotate(-3deg);z-index:3;box-shadow:0 18px 30px rgba(0,0,0,.55)';
+      return {label:L.label,keys:L.keys,style:style,lf:L.lf,kf:L.kf,bar:L.bar,drop:i===DROP,pick:()=>this.setState({sel:i})};
+    });
+    const S=look(sel,15,11);
+    const b=BTN[sel];
+    const gk=GROUPS[b[0]];
+    const hasOver=!!over[sel];
+    const swatches=Object.keys(COLORS).map(k=>({
+      name:NAMES[k],
+      style:'width:28px;height:28px;border-radius:50%;border:0;cursor:pointer;background:'+COLORS[k]+(over[sel]===k?';box-shadow:0 0 0 2px #1A1B1F,0 0 0 4px #fff':''),
+      pick:()=>{const c=Object.assign({},this.state.colors||{});c[sel]=k;this.setState({colors:c});}
+    }));
+    return {
+      sets:[
+        {name:'Photoshop',app:'Adobe Photoshop',style:'background:#2B2D34',dot:'width:10px;height:10px;border-radius:50%;background:'+COLORS.blau,live:true},
+        {name:'Illustrator',app:'Adobe Illustrator',style:'background:transparent',dot:'width:10px;height:10px;border-radius:50%;background:'+COLORS.orange,live:false},
+        {name:'InDesign',app:'Adobe InDesign',style:'background:transparent',dot:'width:10px;height:10px;border-radius:50%;background:'+COLORS.pink,live:false},
+        {name:'Lightroom',app:'Lightroom Classic',style:'background:transparent',dot:'width:10px;height:10px;border-radius:50%;background:'+COLORS.tuerkis,live:false},
+        {name:'Allgemein',app:'Alle anderen Programme',style:'background:transparent',dot:'width:10px;height:10px;border-radius:50%;background:'+COLORS.grau,live:false}
+      ],
+      devices:DEV_ORDER.map(k=>({label:DEV[k].label,style:dev===k?ACT:INACT,pick:()=>this.setState({device:k})})),
+      variants:[['bar','Balken'],['fill','Voll'],['mix','Betont']].map(v=>({label:v[1],style:variant===v[0]?ACT:INACT,pick:()=>this.setState({variant:v[0]})})),
+      frame:{
+        outer:'width:'+D.w+'px;height:'+D.h+'px;box-sizing:border-box;padding:10px;border-radius:'+D.r+'px;background:#08090B;box-shadow:0 0 0 1px #34363D,0 30px 60px rgba(0,0,0,.5);flex:none',
+        inner:'border-radius:'+(D.r-10)+'px',
+        head:'display:flex;align-items:center;justify-content:space-between;padding:'+D.top+'px '+D.pad+'px 10px',
+        grid:'flex:1;min-height:0;display:grid;grid-template-columns:repeat('+D.cols+',minmax(0,1fr));grid-auto-rows:min-content;gap:'+D.gap+'px;padding:0 '+D.pad+'px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 88%,transparent);mask-image:linear-gradient(#000 88%,transparent)',
+        caption:D.cap
+      },
+      tiles:tiles,
+      groups:Object.keys(GROUPS).map(g=>({name:g,count:BTN.filter(x=>x[0]===g).length,dot:'width:9px;height:9px;border-radius:50%;background:'+COLORS[GROUPS[g]]})),
+      sel:{
+        no:(sel+1)+' / '+BTN.length,
+        style:S.base+';width:112px;cursor:default',
+        label:S.label,
+        keys:S.keys,
+        kf:S.kf,
+        bar:S.bar,
+        group:b[0],
+        groupDot:'width:10px;height:10px;border-radius:50%;background:'+COLORS[gk],
+        colorHint:hasOver?'Eigene Farbe: '+NAMES[over[sel]]:'Farbe der Gruppe '+b[0]+' ('+NAMES[gk]+')'
+      },
+      caps:Array.from(b[2]).map(ch=>({k:ch})),
+      swatches:swatches,
+      resetColor:()=>{const c=Object.assign({},this.state.colors||{});delete c[sel];this.setState({colors:c});},
+      onLabel:(e)=>{const l=Object.assign({},this.state.labels||{});l[sel]=e.target.value;this.setState({labels:l});}
+    };
+  }
+}
+</script>
+</body>
+</html>

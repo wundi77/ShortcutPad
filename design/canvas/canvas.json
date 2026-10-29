@@ -1,0 +1,47 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-29T13:10:00Z" },
+  "title": "ShortcutPad Design",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 300, "w": 1360, "h": 880, "title": "Mac · Editor", "is_interactive": true },
+    "Mac-Kuerzel-aufnehmen.dc.html": { "x": 1440, "y": 300, "w": 520, "h": 460, "title": "Mac · Kürzel aufnehmen" },
+    "Mac-Set-Einstellungen.dc.html": { "x": 2040, "y": 300, "w": 520, "h": 720, "title": "Mac · Set-Einstellungen" },
+    "Mac-Menueleiste.dc.html": { "x": 2640, "y": 300, "w": 360, "h": 540, "title": "Mac · Menüleiste" },
+    "Mac-Verbindung.dc.html": { "x": 3080, "y": 300, "w": 640, "h": 800, "title": "Mac · Verbindung und Kopplung" },
+    "Pad-iPhone-hoch.dc.html": { "x": 0, "y": 1540, "w": 390, "h": 844, "title": "iPhone hoch" },
+    "Pad-iPhone-quer.dc.html": { "x": 470, "y": 1540, "w": 844, "h": 390, "title": "iPhone quer" },
+    "Pad-iPad-quer.dc.html": { "x": 1394, "y": 1540, "w": 1180, "h": 820, "title": "iPad quer" },
+    "Pad-iPad-hoch.dc.html": { "x": 2654, "y": 1540, "w": 820, "h": 1180, "title": "iPad hoch" },
+    "Zustand-Offline.dc.html": { "x": 0, "y": 3080, "w": 390, "h": 844, "title": "Zustand · Mac nicht erreichbar" },
+    "Zustand-Freigabe.dc.html": { "x": 470, "y": 3080, "w": 390, "h": 844, "title": "Zustand · Freigabe fehlt" },
+    "Zustand-Gedrueckt.dc.html": { "x": 940, "y": 3080, "w": 390, "h": 844, "title": "Zustand · Button gedrückt" },
+    "Zustand-Set-Waehler.dc.html": { "x": 1410, "y": 3080, "w": 390, "h": 844, "title": "Zustand · Set wählen" },
+    "Zustand-Koppeln.dc.html": { "x": 1880, "y": 3080, "w": 390, "h": 844, "title": "Webseite · Koppeln" },
+    "Stile-und-Farben.dc.html": { "x": 2350, "y": 3080, "w": 1120, "h": 560, "title": "Button-Stile und Farben" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Mac-Kuerzel-aufnehmen.dc.html",
+    "Mac-Set-Einstellungen.dc.html",
+    "Mac-Menueleiste.dc.html",
+    "Mac-Verbindung.dc.html",
+    "Pad-iPhone-hoch.dc.html",
+    "Pad-iPhone-quer.dc.html",
+    "Pad-iPad-quer.dc.html",
+    "Pad-iPad-hoch.dc.html",
+    "Zustand-Offline.dc.html",
+    "Zustand-Freigabe.dc.html",
+    "Zustand-Gedrueckt.dc.html",
+    "Zustand-Set-Waehler.dc.html",
+    "Zustand-Koppeln.dc.html",
+    "Stile-und-Farben.dc.html"
+  ],
+  "notes": {
+    "t-mac": { "x": 0, "y": 60, "text": "Mac-App: hier werden Sets und Buttons bearbeitet", "kind": "title1", "maxW": 3720 },
+    "t-pad": { "x": 0, "y": 1300, "text": "iOS-App und Webseite: gleiche Optik, nur Bedienung", "kind": "title1", "maxW": 3474 },
+    "t-zustand": { "x": 0, "y": 2840, "text": "Zustände, Kopplung und Stile", "kind": "title1", "maxW": 3470 }
+  },
+  "designSystems": []
+}

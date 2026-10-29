@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>iPhone quer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;font-family:'Schibsted Grotesk',-apple-system,'SF Pro Text',system-ui,sans-serif;color:#F2F3F5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible{outline:2px solid #5B9BFF;outline-offset:2px}
+.mono{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace}
+.tile{position:relative;aspect-ratio:1/1;border:0;border-radius:16px;padding:6px 5px 12px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 6px 14px rgba(0,0,0,.35)}
+.tl{font-weight:700;line-height:1.15;text-align:center;overflow-wrap:anywhere;text-wrap:balance}
+.tk{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;letter-spacing:.02em}
+.tb{position:absolute;left:20%;right:20%;bottom:7px;height:3px;border-radius:2px}
+</style>
+</helmet>
+<div style="position:relative;width:844px;height:390px;box-sizing:border-box;display:flex;flex-direction:column;padding:10px 48px 0;overflow:hidden;background:radial-gradient(80% 60% at 50% 0%,rgba(11,99,240,.18),rgba(11,99,240,0) 70%),#0E0F12">
+
+  <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;height:48px">
+    <a href="Zustand-Set-Waehler.dc.html" style="display:inline-flex;align-items:center;gap:9px;min-height:44px;color:#F2F3F5;text-decoration:none">
+      <span style="width:10px;height:10px;border-radius:50%;background:#0B63F0"></span>
+      <span style="font-size:20px;font-weight:800;letter-spacing:-.01em">Photoshop</span>
+      <svg width="13" height="13" viewBox="0 0 12 12" fill="none" stroke="#9A9DA7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
+      <span class="mono" style="padding:2px 6px;border:1px solid #3B3E47;border-radius:6px;font-size:10px;letter-spacing:.08em;color:#A3A6AF">AUTO</span>
+    </a>
+    <div style="display:flex;gap:7px" aria-hidden="true">
+      <span style="width:18px;height:6px;border-radius:3px;background:#fff"></span>
+      <span style="width:6px;height:6px;border-radius:3px;background:#4A4D57"></span>
+      <span style="width:6px;height:6px;border-radius:3px;background:#4A4D57"></span>
+      <span style="width:6px;height:6px;border-radius:3px;background:#4A4D57"></span>
+      <span style="width:6px;height:6px;border-radius:3px;background:#4A4D57"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:#A3A6AF"><span style="width:7px;height:7px;border-radius:50%;background:#4ADE80"></span>Mac Studio · USB</span>
+      <button aria-label="Set fixieren" style="flex:none;width:44px;height:44px;border:0;border-radius:50%;background:#1C1D21;color:#B9BCC5;display:inline-flex;align-items:center;justify-content:center;cursor:pointer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l-1 5 3 3v2H7v-2l3-3-1-5z"/><path d="M12 13v8"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;margin-top:6px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent)">
+    <div style="display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px">
+      <sc-for list="{{tiles}}" as="t" hint-placeholder-count="16">
+        <button class="tile" style="{{t.style}}">
+          <span class="tl" style="font-size:12.5px">{{t.label}}</span>
+          <span class="tk" style="{{t.kf}}">{{t.keys}}</span>
+          <span class="tb" style="{{t.bar}}"></span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+const COLORS={rot:'#E11D48',orange:'#CC420C',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',gelb:'#FBBF24',grau:'#64748B'};
+const GROUPS={Datei:'blau',Bearbeiten:'indigo',Ebenen:'orange',Auswahl:'rot',Werkzeug:'gruen',Ansicht:'tuerkis'};
+const BTN=[['Datei','Neu','⌘N'],['Datei','Speichern','⌘S',1],['Datei','Speichern als','⇧⌘S'],['Datei','Für Web','⌥⇧⌘S'],['Bearbeiten','Zurück','⌘Z',1],['Bearbeiten','Vor','⇧⌘Z'],['Bearbeiten','Verlauf','⌥⌘Z'],['Bearbeiten','Kopieren','⌘C'],['Bearbeiten','Einfügen','⌘V'],['Ebenen','Neue Ebene','⇧⌘N',1],['Ebenen','Duplikat','⌘J'],['Ebenen','Gruppe','⌘G'],['Ebenen','Maske','⌥⌘G'],['Ebenen','Reduzieren','⇧⌘E'],['Auswahl','Alles','⌘A',1],['Auswahl','Aufheben','⌘D'],['Auswahl','Umkehren','⇧⌘I'],['Auswahl','Verfeinern','⌥⌘R'],['Auswahl','Transform','⌘T'],['Werkzeug','Pinsel','B',1],['Werkzeug','Radierer','E'],['Werkzeug','Bewegen','V'],['Werkzeug','Lasso','L'],['Werkzeug','Farben tauschen','X'],['Ansicht','Einpassen','⌘0',1],['Ansicht','100 %','⌘1'],['Ansicht','Lineale','⌘R'],['Ansicht','Bildgröße','⌥⌘I']];
+const VARIANT='bar';
+const KEYS_PX=9.5;
+class Component extends DCLogic{
+  renderVals(){
+    const tiles=BTN.map(b=>{
+      const key=GROUPS[b[0]];
+      const c=COLORS[key];
+      const filled=VARIANT==='fill'||(VARIANT==='mix'&&b[3]);
+      return {
+        label:b[1],
+        keys:b[2],
+        style:filled?'background:'+c+';color:#fff':'background:#25262B;color:#F2F3F5',
+        kf:(filled?'color:rgba(255,255,255,.88)':'color:#A3A6AF')+';font-size:'+KEYS_PX+'px',
+        bar:filled?'display:none':'background:'+c
+      };
+    });
+    return {tiles:tiles};
+  }
+}
+</script>
+</body>
+</html>

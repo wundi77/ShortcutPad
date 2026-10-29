@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kürzel aufnehmen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;font-family:'Schibsted Grotesk',-apple-system,'SF Pro Text',system-ui,sans-serif;color:#F2F3F5;-webkit-font-smoothing:antialiased}
+button,input{font-family:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #5B9BFF;outline-offset:2px}
+.mono{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;padding:9px 18px;font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn-p{background:#0B63F0;color:#fff}
+.btn-s{background:#383A42;color:#E6E8EC}
+.bigcap{min-width:64px;height:68px;padding:0 14px;box-sizing:border-box;border-radius:14px;background:#2E3037;border:1px solid #4A4D57;box-shadow:0 4px 0 #14151A;display:inline-flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:30px;font-weight:500;color:#fff}
+.mod{display:inline-flex;flex-direction:column;align-items:center;gap:2px;flex:1;padding:9px 4px;border:0;border-radius:10px;cursor:pointer}
+</style>
+</helmet>
+<div style="width:520px;height:460px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px;padding:26px 28px 24px;background:#26272C;border-radius:16px;box-shadow:0 0 0 1px #3B3E47,0 30px 70px rgba(0,0,0,.55)">
+
+  <div>
+    <div style="font-size:19px;font-weight:700">Kürzel aufnehmen</div>
+    <div style="margin-top:6px;font-size:13.5px;line-height:1.5;color:#B4B7C0">Für den Button „Neue Ebene“ im Set Photoshop. Drücke die Tastenkombination, die am Mac im vordersten Programm ausgelöst werden soll.</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;height:136px;flex:none;border:2px dashed #5B9BFF;border-radius:14px;background:#1B2230">
+    <div style="display:flex;gap:10px">
+      <span class="bigcap">⇧</span>
+      <span class="bigcap">⌘</span>
+      <span class="bigcap">N</span>
+    </div>
+    <div class="mono" style="display:inline-flex;align-items:center;gap:8px;font-size:11.5px;color:#D5D7DD"><span style="width:7px;height:7px;border-radius:50%;background:#FF6B6B"></span>Aufnahme läuft · Esc bricht ab</div>
+  </div>
+
+  <div>
+    <div class="mono" style="margin-bottom:8px;font-size:11px;letter-spacing:.1em;color:#9A9DA7">ODER VON HAND</div>
+    <div style="display:flex;gap:8px">
+      <button class="mod" style="background:#33353C;color:#E6E8EC"><span style="font-size:17px">⌃</span><span style="font-size:11px">Control</span></button>
+      <button class="mod" style="background:#33353C;color:#E6E8EC"><span style="font-size:17px">⌥</span><span style="font-size:11px">Option</span></button>
+      <button class="mod" style="background:#0B63F0;color:#fff"><span style="font-size:17px">⇧</span><span style="font-size:11px">Shift</span></button>
+      <button class="mod" style="background:#0B63F0;color:#fff"><span style="font-size:17px">⌘</span><span style="font-size:11px">Command</span></button>
+      <div style="display:flex;align-items:center;justify-content:center;flex:none;width:88px;border-radius:10px;background:#16171B;border:1px solid #4A4D57;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:18px;font-weight:500">N</div>
+    </div>
+  </div>
+
+  <div style="font-size:12px;line-height:1.5;color:#9A9DA7">Buchstaben und Ziffern werden nach deinem Tastaturlayout (Deutsch) übersetzt. Zeichen, die selbst Shift brauchen, etwa „/“, funktionieren noch nicht. Dafür gibt es eine Warnung statt eines stillen Fehlers.</div>
+
+  <div style="margin-top:auto;display:flex;justify-content:flex-end;gap:10px">
+    <a href="Main.dc.html" class="btn btn-s">Abbrechen</a>
+    <a href="Main.dc.html" class="btn btn-p">Übernehmen</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":520,"height":460}}'>
+class Component extends DCLogic{
+  renderVals(){
+    return {};
+  }
+}
+</script>
+</body>
+</html>

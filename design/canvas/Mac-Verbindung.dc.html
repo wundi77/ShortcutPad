@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Verbindung und Kopplung</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+body{margin:0;font-family:'Schibsted Grotesk',-apple-system,'SF Pro Text',system-ui,sans-serif;color:#F2F3F5;-webkit-font-smoothing:antialiased}
+button,input{font-family:inherit}
+button:focus-visible,a:focus-visible{outline:2px solid #5B9BFF;outline-offset:2px}
+.mono{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace}
+.fl{display:block;font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9A9DA7}
+.card{display:flex;flex-direction:column;gap:14px;padding:18px 20px;border-radius:12px;background:#25262B;border:1px solid #2F3138}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:8px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:none;background:#383A42;color:#E6E8EC}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:999px;background:#17301F;color:#6EE79A;font-size:12px;font-weight:600}
+.sw{position:relative;flex:none;width:42px;height:25px;border:0;border-radius:13px;cursor:pointer}
+.sw i{position:absolute;top:2px;width:21px;height:21px;border-radius:50%;background:#fff}
+</style>
+</helmet>
+<div style="width:640px;height:800px;display:flex;flex-direction:column;background:#1E1F23;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px #34363D,0 30px 70px rgba(0,0,0,.55)">
+
+  <div style="height:52px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;background:#232429;border-bottom:1px solid #2E3036">
+    <div style="display:flex;gap:8px" aria-hidden="true">
+      <span style="width:12px;height:12px;border-radius:50%;background:#FF5F57"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#FEBC2E"></span>
+      <span style="width:12px;height:12px;border-radius:50%;background:#28C840"></span>
+    </div>
+    <div style="font-size:13px;font-weight:600;color:#C9CBD2">Verbindung und Kopplung</div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:16px;padding:22px 24px 20px">
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-size:15px;font-weight:700">USB-Kabel</div>
+        <span class="pill"><span style="width:7px;height:7px;border-radius:50%;background:#4ADE80"></span>Verbunden</span>
+      </div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+        <div style="font-size:14px">iPad Pro von Jens</div>
+        <div style="font-size:12.5px;color:#A3A6AF">ShortcutPad-App ist vorne und entsperrt</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:15px;font-weight:700">Webseite im lokalen Netzwerk</div>
+          <div style="margin-top:3px;font-size:12.5px;color:#A3A6AF">Für iPad und iPhone ohne App, einfach im Safari öffnen.</div>
+        </div>
+        <button class="sw" role="switch" aria-checked="true" aria-label="Webseite anbieten" style="background:#30D158"><i style="right:2px"></i></button>
+      </div>
+
+      <div style="display:flex;gap:22px;align-items:stretch">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:16px">
+          <div>
+            <span class="fl">Adresse</span>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+              <span class="mono" style="font-size:14px;color:#F2F3F5">http://192.168.178.24:8765</span>
+              <button class="btn" style="padding:4px 10px">Kopieren</button>
+            </div>
+          </div>
+          <div>
+            <span class="fl">Kopplungscode</span>
+            <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
+              <span class="mono" style="font-size:38px;font-weight:500;letter-spacing:.14em">482 915</span>
+              <button class="btn">Neuer Code</button>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;display:flex;flex-direction:column;align-items:center;gap:7px">
+          <div style="padding:8px;background:#fff;border-radius:8px">
+            <div style="display:grid;grid-template-columns:repeat(25,5px);grid-auto-rows:5px">
+              <sc-for list="{{qr}}" as="q" hint-placeholder-count="25">
+                <i style="{{q.s}}"></i>
+              </sc-for>
+            </div>
+          </div>
+          <div class="mono" style="font-size:10.5px;color:#9A9DA7">QR-Code, Platzhalter</div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:#33353C"></div>
+
+      <div>
+        <span class="fl">Gekoppelte Geräte</span>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:10px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px">iPad Air · Safari</div>
+            <div style="margin-top:2px;font-size:12px;color:#A3A6AF">gekoppelt am 28.10., zuletzt aktiv vor 2 Min.</div>
+          </div>
+          <button class="btn">Entfernen</button>
+        </div>
+        <button class="btn" style="margin-top:12px;background:transparent;color:#FF7A8A;padding-left:0">Alle Kopplungen löschen</button>
+      </div>
+
+      <div style="font-size:12px;line-height:1.45;color:#C9A66B">Die Verbindung ist unverschlüsselt (HTTP). Nur in Netzen nutzen, denen du vertraust.</div>
+    </div>
+
+    <div class="card" style="gap:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-size:14px">Bedienungshilfen</div>
+        <span class="pill"><span style="width:7px;height:7px;border-radius:50%;background:#4ADE80"></span>Freigegeben</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-size:14px">Beim Anmelden starten</div>
+        <button class="sw" role="switch" aria-checked="true" aria-label="Beim Anmelden starten" style="background:#30D158"><i style="right:2px"></i></button>
+      </div>
+    </div>
+
+    <div class="mono" style="margin-top:auto;font-size:11.5px;color:#9A9DA7">09:41:12 · Web · ⇧⌘N an Adobe Photoshop gesendet</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":640,"height":800}}'>
+class Component extends DCLogic{
+  renderVals(){
+    const N=25;
+    const finder=(x,y)=>{
+      const corners=[[0,0],[N-7,0],[0,N-7]];
+      for(const c of corners){
+        const lx=x-c[0];
+        const ly=y-c[1];
+        if(lx>=-1&&lx<=7&&ly>=-1&&ly<=7){
+          if(lx<0||ly<0||lx>6||ly>6)return 0;
+          return (lx===0||lx===6||ly===0||ly===6||(lx>=2&&lx<=4&&ly>=2&&ly<=4))?1:0;
+        }
+      }
+      return null;
+    };
+    const qr=[];
+    for(let y=0;y<N;y++){
+      for(let x=0;x<N;x++){
+        let on=finder(x,y);
+        if(on===null)on=((x*31+y*17+x*y)%7)<3?1:0;
+        qr.push({s:'display:block;width:5px;height:5px;background:'+(on?'#111':'#fff')});
+      }
+    }
+    return {qr:qr};
+  }
+}
+</script>
+</body>
+</html>
