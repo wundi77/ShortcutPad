@@ -10,6 +10,7 @@
     "Mac-Set-Einstellungen.dc.html": { "x": 2040, "y": 300, "w": 520, "h": 720, "title": "Mac · Set-Einstellungen" },
     "Mac-Menueleiste.dc.html": { "x": 2640, "y": 300, "w": 360, "h": 540, "title": "Mac · Menüleiste" },
     "Mac-Verbindung.dc.html": { "x": 3080, "y": 300, "w": 640, "h": 800, "title": "Mac · Verbindung und Kopplung" },
+    "Mac-Import-Export.dc.html": { "x": 3800, "y": 300, "w": 520, "h": 640, "title": "Mac · Import und Export" },
     "Pad-iPhone-hoch.dc.html": { "x": 0, "y": 1540, "w": 390, "h": 844, "title": "iPhone hoch" },
     "Pad-iPhone-quer.dc.html": { "x": 470, "y": 1540, "w": 844, "h": 390, "title": "iPhone quer" },
     "Pad-iPad-quer.dc.html": { "x": 1394, "y": 1540, "w": 1180, "h": 820, "title": "iPad quer" },
@@ -27,6 +28,7 @@
     "Mac-Set-Einstellungen.dc.html",
     "Mac-Menueleiste.dc.html",
     "Mac-Verbindung.dc.html",
+    "Mac-Import-Export.dc.html",
     "Pad-iPhone-hoch.dc.html",
     "Pad-iPhone-quer.dc.html",
     "Pad-iPad-quer.dc.html",
@@ -39,7 +41,7 @@
     "Stile-und-Farben.dc.html"
   ],
   "notes": {
-    "t-mac": { "x": 0, "y": 60, "text": "Mac-App: hier werden Sets und Buttons bearbeitet", "kind": "title1", "maxW": 3720 },
+    "t-mac": { "x": 0, "y": 60, "text": "Mac-App: hier werden Sets und Buttons bearbeitet", "kind": "title1", "maxW": 4320 },
     "t-pad": { "x": 0, "y": 1300, "text": "iOS-App und Webseite: gleiche Optik, nur Bedienung", "kind": "title1", "maxW": 3474 },
     "t-zustand": { "x": 0, "y": 2840, "text": "Zustände, Kopplung und Stile", "kind": "title1", "maxW": 3470 }
   },

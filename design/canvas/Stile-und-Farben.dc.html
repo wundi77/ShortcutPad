@@ -63,8 +63,8 @@ body{margin:0;font-family:'Schibsted Grotesk',-apple-system,'SF Pro Text',system
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1120,"height":560}}'>
-const COLORS={rot:'#E11D48',orange:'#CC420C',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',gelb:'#FBBF24',grau:'#64748B'};
-const NAMES={rot:'Rot',orange:'Orange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',gelb:'Gelb',grau:'Grau'};
+const COLORS={rot:'#E11D48',orange:'#CC420C',hellorange:'#E8884A',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',grau:'#64748B'};
+const NAMES={rot:'Rot',orange:'Orange',hellorange:'Hellorange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',grau:'Grau'};
 const GROUPS={Datei:'blau',Bearbeiten:'indigo',Ebenen:'orange',Auswahl:'rot',Werkzeug:'gruen',Ansicht:'tuerkis'};
 const BTN=[['Datei','Neu','⌘N'],['Datei','Speichern','⌘S',1],['Datei','Speichern als','⇧⌘S'],['Datei','Für Web','⌥⇧⌘S'],['Bearbeiten','Zurück','⌘Z',1],['Bearbeiten','Vor','⇧⌘Z'],['Bearbeiten','Verlauf','⌥⌘Z'],['Bearbeiten','Kopieren','⌘C'],['Bearbeiten','Einfügen','⌘V'],['Ebenen','Neue Ebene','⇧⌘N',1],['Ebenen','Duplikat','⌘J'],['Ebenen','Gruppe','⌘G']];
 class Component extends DCLogic{
@@ -90,7 +90,7 @@ class Component extends DCLogic{
         name:NAMES[k],
         hex:COLORS[k],
         sample:'Aa',
-        style:'height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;background:'+COLORS[k]+';color:'+(k==='gelb'?'#1A1405':'#fff')
+        style:'height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;background:'+COLORS[k]+';color:'+(k==='hellorange'?'#1F1206':'#fff')
       }))
     };
   }

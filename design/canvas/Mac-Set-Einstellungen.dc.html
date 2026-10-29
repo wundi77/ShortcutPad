@@ -95,14 +95,15 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #5B9B
   <div style="margin-top:auto;display:flex;align-items:center;gap:10px">
     <button class="btn" style="background:transparent;color:#FF7A8A;padding-left:0">Set löschen</button>
     <div style="flex:1"></div>
+    <a href="Mac-Import-Export.dc.html" class="btn btn-s">Exportieren</a>
     <a href="Main.dc.html" class="btn btn-s">Abbrechen</a>
     <a href="Main.dc.html" class="btn btn-p">Fertig</a>
   </div>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":520,"height":720}}'>
-const COLORS={rot:'#E11D48',orange:'#CC420C',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',gelb:'#FBBF24',grau:'#64748B'};
-const NAMES={rot:'Rot',orange:'Orange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',gelb:'Gelb',grau:'Grau'};
+const COLORS={rot:'#E11D48',orange:'#CC420C',hellorange:'#E8884A',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',grau:'#64748B'};
+const NAMES={rot:'Rot',orange:'Orange',hellorange:'Hellorange',pink:'Pink',blau:'Blau',indigo:'Indigo',gruen:'Grün',tuerkis:'Türkis',grau:'Grau'};
 const MINI=['blau','indigo','orange','rot','gruen','tuerkis'];
 class Component extends DCLogic{
   renderVals(){

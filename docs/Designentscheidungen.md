@@ -10,6 +10,10 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 - **Gruppierung:** nur über Farbe, keine Abschnittsüberschriften. Gruppen sind benannte Farb-Tags; ein Button kann die
   Gruppenfarbe überschreiben. Neuanordnen per Ziehen in der Mac-Vorschau.
 - **Mac-App:** Fenster-App (Sets links, Pad-Vorschau Mitte, Button-Eigenschaften rechts) plus Menüleisten-Symbol.
+- **Button-Stil:** pro Set wählbar (Balken, Voll, Betont).
+- **Import/Export:** Sets als Datei (.shortcutpad) sichern, teilen und auf anderem Mac importieren (als neues Set oder ersetzen).
+- **Kürzel auf dem Button:** klein unter der Beschriftung, pro Set abschaltbar.
+- **Farben:** Gelb entfällt, stattdessen Hellorange (#E8884A, dunkle Schrift). Neun Farben bleiben.
 
 ## Regeln aus dem Briefing
 
@@ -21,7 +25,7 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 
 - Stile pro Set: Balken (dunkel mit Farbbalken), Voll, Betont (wichtige Buttons voll).
 - Mindestgröße: 80 pt iPhone, 128 pt iPad. Spaltenzahl = so viele wie mit Mindestgröße passen, Rest scrollt.
-- Neun Farben, Weiß-auf-Farbe mindestens 4,5:1 (Gelb mit dunkler Schrift).
+- Neun Farben, Weiß-auf-Farbe mindestens 4,5:1 (Hellorange mit dunkler Schrift).
 - Rückmeldung: Haptik, gedrückter Button, Toast mit gesendetem Kürzel; Zustände für Offline und fehlende Freigabe.
 
 ## Technische Folgen für die Umsetzung
