@@ -1,0 +1,58 @@
+name: ShortcutPadTest
+
+options:
+  deploymentTarget:
+    iOS: "16.0"
+    macOS: "13.0"
+  createIntermediateGroups: true
+  developmentLanguage: de
+
+# Team-ID und Bundle-Präfix stehen in Config/Signing.xcconfig
+configFiles:
+  Debug: Config/Signing.xcconfig
+  Release: Config/Signing.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+  ShortcutPad:
+    type: application
+    platform: iOS
+    sources:
+      - iOSApp
+      - Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(PAD_BUNDLE_PREFIX).ios"
+        PRODUCT_NAME: ShortcutPad
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: ShortcutPad
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+
+  ShortcutPadHelper:
+    type: application
+    platform: macOS
+    sources:
+      - MacHelper
+      - Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "$(PAD_BUNDLE_PREFIX).helper"
+        PRODUCT_NAME: ShortcutPadHelper
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "ShortcutPad Helper"
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        COMBINE_HIDPI_IMAGES: YES
+        # Ohne Sandbox: nötig für den usbmuxd-Socket und das Senden von Tastendrücken
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: NO
