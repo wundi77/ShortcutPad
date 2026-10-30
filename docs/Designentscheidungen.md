@@ -15,6 +15,18 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 - **Kürzel auf dem Button:** klein unter der Beschriftung, pro Set abschaltbar.
 - **Farben:** Gelb und Hellorange entfallen. Acht Farben: Rot, Orange, Pink, Blau, Indigo, Grün, Türkis, Grau.
 
+## Ordner (Entwurf im Canvas, noch nicht umgesetzt)
+
+- Auf der Hauptebene eines Sets stehen Buttons und Ordner gemischt, in einer gemeinsamen Reihenfolge.
+- **Eine Ordner-Ebene**: Ordner liegen nur auf der Hauptebene, nicht in anderen Ordnern.
+- Ein Ordner hat Name und eigene Farbe. Auf dem Pad erkennt man ihn an der Lasche oben links und der Angabe „n Buttons“ statt des Kürzels.
+- **Eigene Ordnerseite**: Ein Tipp öffnet die Seite mit Titel und Zurück-Taste (am Gerät) bzw. mit Brotkrümel „Photoshop › Ordner“ (am Mac).
+  Welcher Ordner offen ist, merkt sich nur das Gerät.
+- Mac-Editor: Buttons und Ordner lassen sich im Raster frei verschieben. Ein Button auf einen Ordner ziehen legt ihn dort ab.
+  In der Ordnerseite wird ein Button auf „Photoshop“ im Brotkrümel gezogen, um ihn auf die Hauptebene zu legen.
+  Alternative ohne Ziehen: „Ablegen in“ im Inspektor.
+- Umsetzung in Schritten: erst Datenmodell und Datei-Umstellung (alte Dateien werden übernommen), dann Anzeige und Ordner anlegen, zuletzt das Ziehen.
+
 ## Regeln aus dem Briefing
 
 - Sets, Buttons, Kürzel, Farben werden **ausschließlich am Mac** bearbeitet. iOS-App und Webseite zeigen nur an und lösen aus.

@@ -17,6 +17,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #5B9BFF;outline-offset:2p
 .tile{position:relative;aspect-ratio:1/1;border:0;border-radius:16px;padding:6px 5px 12px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 6px 14px rgba(0,0,0,.35)}
 .tl{font-weight:700;line-height:1.15;text-align:center;overflow-wrap:anywhere;text-wrap:balance}
 .tk{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;letter-spacing:.02em}
+.tab{position:absolute;top:0;left:14%;width:34%;height:8px;border-radius:0 0 6px 6px}
 .tb{position:absolute;left:20%;right:20%;bottom:7px;height:3px;border-radius:2px}
 .row{display:flex;align-items:center;gap:14px;width:100%;box-sizing:border-box;min-height:56px;padding:8px 14px;border:0;border-radius:12px;background:transparent;color:inherit;text-align:left;cursor:pointer}
 .sw{position:relative;flex:none;width:51px;height:31px;border:0;border-radius:16px;cursor:pointer}
@@ -35,6 +36,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #5B9BFF;outline-offset:2p
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
       <sc-for list="{{tiles}}" as="t" hint-placeholder-count="12">
         <div class="tile" style="{{t.style}}">
+          <span class="tab" style="{{t.tab}}"></span>
           <span class="tl" style="font-size:12.5px">{{t.label}}</span>
           <span class="tk" style="{{t.kf}}">{{t.keys}}</span>
           <span class="tb" style="{{t.bar}}"></span>
@@ -82,21 +84,22 @@ button:focus-visible,a:focus-visible{outline:2px solid #5B9BFF;outline-offset:2p
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 const COLORS={rot:'#E11D48',orange:'#CC420C',pink:'#DB2777',blau:'#0B63F0',indigo:'#6D4DE6',gruen:'#15803D',tuerkis:'#0E7490',grau:'#64748B'};
 const GROUPS={Datei:'blau',Bearbeiten:'indigo',Ebenen:'orange',Auswahl:'rot',Werkzeug:'gruen',Ansicht:'tuerkis'};
-const BTN=[['Datei','Neu','⌘N'],['Datei','Speichern','⌘S',1],['Datei','Speichern als','⇧⌘S'],['Datei','Für Web','⌥⇧⌘S'],['Bearbeiten','Zurück','⌘Z',1],['Bearbeiten','Vor','⇧⌘Z'],['Bearbeiten','Verlauf','⌥⌘Z'],['Bearbeiten','Kopieren','⌘C'],['Bearbeiten','Einfügen','⌘V'],['Ebenen','Neue Ebene','⇧⌘N',1],['Ebenen','Duplikat','⌘J'],['Ebenen','Gruppe','⌘G'],['Ebenen','Maske','⌥⌘G'],['Ebenen','Reduzieren','⇧⌘E'],['Auswahl','Alles','⌘A',1],['Auswahl','Aufheben','⌘D'],['Auswahl','Umkehren','⇧⌘I'],['Auswahl','Verfeinern','⌥⌘R'],['Auswahl','Transform','⌘T'],['Werkzeug','Pinsel','B',1],['Werkzeug','Radierer','E'],['Werkzeug','Bewegen','V'],['Werkzeug','Lasso','L'],['Werkzeug','Farben tauschen','X'],['Ansicht','Einpassen','⌘0',1],['Ansicht','100 %','⌘1'],['Ansicht','Lineale','⌘R'],['Ansicht','Bildgröße','⌥⌘I']];
+const BTN=[['blau','Speichern','⌘S',1],['indigo','Zurück','⌘Z',1],['orange','Neue Ebene','⇧⌘N',1],['gruen','Pinsel','B',1],['blau','Datei','',0,4],['indigo','Bearbeiten','',0,3],['orange','Ebenen','',0,4],['rot','Auswahl','',0,5],['gruen','Werkzeug','',0,2],['tuerkis','Ansicht','',0,3],['indigo','Vor','⇧⌘Z',0],['gruen','Radierer','E',0],['gruen','Bewegen','V',0],['tuerkis','Einpassen','⌘0',1]];
 const VARIANT='bar';
 const KEYS_PX=9.5;
 class Component extends DCLogic{
   renderVals(){
     const tiles=BTN.map(b=>{
-      const key=GROUPS[b[0]];
+      const key=b[0];
       const c=COLORS[key];
-      const filled=VARIANT==='fill'||(VARIANT==='mix'&&b[3]);
+      const filled=VARIANT==='fill'||(VARIANT==='mix'&&(b[3]||b.length>4));
       return {
         label:b[1],
-        keys:b[2],
+        keys:b.length>4?b[4]+' Buttons':b[2],
         style:filled?'background:'+c+';color:#fff':'background:#25262B;color:#F2F3F5',
         kf:(filled?'color:rgba(255,255,255,.88)':'color:#A3A6AF')+';font-size:'+KEYS_PX+'px',
-        bar:filled?'display:none':'background:'+c
+        bar:filled?'display:none':'background:'+c,
+        tab:b.length>4?'background:'+(filled?'rgba(255,255,255,.4)':c):'display:none'
       };
     });
     const dot=(k)=>'width:12px;height:12px;border-radius:50%;background:'+COLORS[k];
