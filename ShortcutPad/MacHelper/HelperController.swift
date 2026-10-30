@@ -115,19 +115,6 @@ final class HelperController: ObservableObject {
         }
     }
 
-    /// Löst ein Kürzel zum Ausprobieren aus. Ist das Programm des Sets geöffnet, kommt es vorher nach vorne.
-    func test(_ shortcut: Shortcut, targetBundleID: String?) {
-        var delay = 0.0
-        if let id = targetBundleID,
-           let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first {
-            app.activate(options: [])
-            delay = 0.5
-        }
-        DispatchQueue.global().asyncAfter(deadline: .now() + delay) { [weak self] in
-            _ = self?.executeShortcut(shortcut, source: "Test")
-        }
-    }
-
     // MARK: Berechtigung
 
     func requestAccessibility() {

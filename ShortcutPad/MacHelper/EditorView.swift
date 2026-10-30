@@ -239,7 +239,6 @@ struct EditorView: View {
                     folder: currentFolder,
                     device: device,
                     selectedID: $selectedID,
-                    isConnected: controller.webClientActive,
                     onOpen: { id in openFolder(id) },
                     onBack: { closeFolder() },
                     onReorder: { dragged, target in store.reorder(dragged, onto: target, in: set.id) },
@@ -574,13 +573,6 @@ struct EditorView: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Button {
-                    controller.test(button.shortcut, targetBundleID: set.appBundleID)
-                } label: {
-                    Text("Am Mac testen").frame(maxWidth: .infinity)
-                }
-                .buttonStyle(FlatButtonStyle(kind: .secondary))
-
                 HStack(spacing: 8) {
                     Button {
                         if let id = store.duplicateButton(button.id, in: set.id) {

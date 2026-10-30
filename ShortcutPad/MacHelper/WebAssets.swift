@@ -73,9 +73,6 @@ enum WebAssets {
   .upper { font-size: 15px; font-weight: 600; color: var(--dim); }
   .ftitle { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
   .ftitle .setname { font-size: 28px; }
-  .sub { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--dim); margin-top: 3px; }
-  .sdot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex: none; }
-  .sdot.ok { background: var(--ok); } .sdot.bad { background: var(--bad); } .sdot.warn { background: var(--warn); }
 
   .banner { flex: none; margin: 14px var(--pad) 0; padding: 18px; border-radius: 16px; display: flex; flex-direction: column; gap: 10px; }
   .banner.bad { background: #2b1a1d; } .banner.warn { background: #2a2414; }
@@ -146,7 +143,6 @@ enum WebAssets {
 
   body.tablet .setname { font-size: 34px; }
   body.tablet .ftitle .setname { font-size: 34px; }
-  body.tablet .sub { font-size: 15px; }
   body.tablet .upper { font-size: 20px; }
   body.tablet .roundbtn { width: 52px; height: 52px; }
   body.tablet .tb { min-height: 4px; }
@@ -386,26 +382,6 @@ enum WebAssets {
     return cols;
   }
 
-  function renderStatusLine() {
-    var line = $('statusLine');
-    if (!line) { return; }
-    var dot = line.firstChild;
-    var text = line.lastChild;
-    var set = currentSet();
-    var folder = findFolder(set, openFolderID);
-    var prefix = folder ? folder.buttons.length + (folder.buttons.length === 1 ? ' Button · ' : ' Buttons · ') : '';
-    if (!online || !status) {
-      dot.className = 'sdot bad';
-      text.textContent = 'Kein Mac verbunden';
-    } else if (!status.accessibilityGranted) {
-      dot.className = 'sdot warn';
-      text.textContent = prefix + status.macName + ' · Tasten gesperrt';
-    } else {
-      dot.className = 'sdot ok';
-      text.textContent = prefix + status.macName + ' · ' + status.frontmostApp + ' vorne';
-    }
-  }
-
   function render() {
     if (!token) { return; }
     var set = currentSet();
@@ -419,7 +395,7 @@ enum WebAssets {
     if (openFolderID && !findFolder(set, openFolderID)) { openFolderID = null; }
 
     var key = [state, set ? set.id : '', openFolderID || '', library ? library.revision : '', isPinned() ? 1 : 0, window.innerWidth, window.innerHeight].join('|');
-    if (key === lastKey) { renderStatusLine(); return; }
+    if (key === lastKey) { return; }
     lastKey = key;
 
     document.documentElement.style.setProperty('--glow', set ? rgb(set.color) : '11, 99, 240');
@@ -428,7 +404,6 @@ enum WebAssets {
     renderBanner(state);
     renderGrid(set, state, cols);
     renderDots(set);
-    renderStatusLine();
   }
 
   function renderHeader(set) {
@@ -474,11 +449,6 @@ enum WebAssets {
       head.appendChild(title);
     }
 
-    var sub = el('div', 'sub');
-    sub.id = 'statusLine';
-    sub.appendChild(el('span', 'sdot'));
-    sub.appendChild(el('span', '', ''));
-    head.appendChild(sub);
   }
 
   function renderBanner(state) {

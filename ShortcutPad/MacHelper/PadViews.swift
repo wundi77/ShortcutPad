@@ -168,7 +168,6 @@ struct PadPreview: View {
     let folder: PadFolder?
     let device: PadDevice
     @Binding var selectedID: UUID?
-    let isConnected: Bool
     let onOpen: (UUID) -> Void
     let onBack: () -> Void
     /// Gezogener Eintrag nimmt den Platz des Ziels ein (gleiche Ebene).
@@ -261,10 +260,6 @@ struct PadPreview: View {
                     .lineLimit(1)
             }
             Spacer()
-            Circle().fill(isConnected ? Theme.live : Theme.muted).frame(width: 6, height: 6)
-            Text(isConnected ? "Mac verbunden" : "Vorschau")
-                .font(.system(size: 10 * fontScale))
-                .foregroundColor(Theme.muted)
         }
         .padding(.horizontal, padding)
         .padding(.top, max(10, 22 * scale))

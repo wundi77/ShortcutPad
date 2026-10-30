@@ -67,8 +67,8 @@ Der Mac liefert die Seite im lokalen Netz aus. Voraussetzung: Mac und Gerät sin
     * Gibt es mehrere Adressen, nutzt der QR-Code die erste (Heimnetz 192.168.x.x zuerst). Erreicht das Gerät sie nicht, eine andere in Safari eintippen.
 14. **Am iPad/iPhone:** Kamera auf den QR-Code richten und den Link antippen (öffnet Safari und koppelt automatisch).
     Alternativ in Safari die Adresse eintippen und den 6-stelligen Code eingeben.
-15. Die Seite zeigt das **Set des vordersten Programms** mit allen Buttons und Ordnern und darunter eine Statuszeile mit dem Mac und dem
-    aktiven Programm. Ein Tipp auf einen Button löst das Kürzel am Mac aus (grüne Meldung unten). Ein Tipp auf einen **Ordner** öffnet
+15. Die Seite zeigt das **Set des vordersten Programms** mit allen Buttons und Ordnern und darunter sofort die Buttons (es gibt keine Statuszeile; Probleme zeigt
+    eine Meldung). Ein Tipp auf einen Button löst das Kürzel am Mac aus (grüne Meldung unten). Ein Tipp auf einen **Ordner** öffnet
     die Ordnerseite; die hellgraue **„<“-Kachel** an erster Stelle springt zurück. Über den Set-Namen oben (oder Wischen nach links/rechts)
     wählst du ein anderes Set; der Stecknadel-Knopf oben rechts **fixiert** das Set, damit es nicht mehr mit dem Programm wechselt.
 16. **Vollbild ohne Browserleisten:** In Safari **Teilen → Zum Home-Bildschirm** (die Seite weist beim ersten Mal selbst darauf hin). Das Symbol
@@ -105,8 +105,8 @@ erscheint ein Symbol. Das Fenster darf geschlossen werden, die App läuft weiter
    Programm und wechselt automatisch, sobald dieses Programm am Mac vorne ist. „Allgemein“ gilt für alle anderen Programme.
 2. **Buttons:** In der Vorschau in der Mitte anklicken zum Bearbeiten, ziehen zum Neuanordnen, „+ Button“ legt einen neuen an
    (der Dialog „Kürzel aufnehmen“ öffnet sich gleich). Das Gerät oben (iPhone/iPad, hoch/quer) zeigt, wie viele Spalten die Webseite dort hat.
-3. **Rechts** stehen Beschriftung, Kürzel, Farbe und Gruppe des gewählten Buttons. „Am Mac testen“ holt das Programm des Sets
-   nach vorne und sendet das Kürzel.
+3. **Rechts** stehen Beschriftung, Kürzel, Farbe und Gruppe des gewählten Buttons. Zum Ausprobieren eines Kürzels dient die
+   Webseite am iPad (oder du drückst das Kürzel selbst im Zielprogramm).
 4. **Gruppen** sind Farben: Unten in der Vorschau auf eine Gruppe klicken, um Name und Farbe zu ändern. Ein Button kann die
    Gruppenfarbe mit einer eigenen Farbe überschreiben.
 5. **Set-Einstellungen:** Name, Programm, automatisches Umschalten, Set-Farbe, Stil (Balken, Voll, Betont), Buttongröße und ob
