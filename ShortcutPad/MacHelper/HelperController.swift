@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import SwiftUI
+import SystemConfiguration
 
 final class HelperController: ObservableObject {
     @Published private(set) var accessibilityGranted = false
@@ -27,6 +28,8 @@ final class HelperController: ObservableObject {
     @Published private(set) var webRunning = false
     @Published private(set) var webError: String?
     @Published private(set) var webAddresses: [String] = []
+    /// Name des Macs im lokalen Netz („Mac-Studio.local“). Bleibt gleich, auch wenn sich die IP-Adresse ändert.
+    @Published private(set) var webHostName: String?
     @Published private(set) var webPIN = ""
     @Published private(set) var webPairedCount = 0
     /// true, solange mindestens eine gekoppelte Webseite in den letzten Sekunden beim Mac nachgefragt hat.
@@ -312,8 +315,17 @@ final class HelperController: ObservableObject {
         }
     }
 
+    private static func bonjourHostName() -> String? {
+        guard let name = SCDynamicStoreCopyLocalHostName(nil) as String?, !name.isEmpty else { return nil }
+        return name + ".local"
+    }
+
     private func refreshWebAddresses(force: Bool = false) {
         guard webEnabled || force else { return }
+        let host = HelperController.bonjourHostName()
+        if host != webHostName {
+            webHostName = host
+        }
         let addresses = LocalNetwork.ipv4Addresses()
         if addresses != webAddresses {
             webAddresses = addresses
@@ -327,9 +339,11 @@ final class HelperController: ObservableObject {
     }
 
     /// Adresse, die in den QR-Code kommt: inklusive Code, damit das Koppeln automatisch läuft.
+    /// Der QR-Code nutzt den Namen des Macs; er bleibt gleich, auch wenn der Router eine andere IP-Adresse vergibt.
+    /// Ohne Namen wird die erste IP-Adresse genommen.
     var webQRText: String? {
-        guard let ip = webAddresses.first else { return nil }
-        return "http://\(ip):\(WebServer.defaultPort)/#pin=\(webPIN)"
+        guard let host = webHostName ?? webAddresses.first else { return nil }
+        return "http://\(host):\(WebServer.defaultPort)/#pin=\(webPIN)"
     }
 
     func webURL(for ip: String) -> String {

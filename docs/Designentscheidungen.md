@@ -34,7 +34,7 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 - Sets, Buttons, Kürzel, Farben werden **ausschließlich am Mac** bearbeitet. Die Webseite zeigt nur an und löst aus.
 - **Nur Webseite** (Kopplung per QR-Code und Code). USB, iOS-App und Bluetooth sind entfernt bzw. vertagt und kommen eventuell später.
 - Die Webseite ist responsiv für alle Größen und Ausrichtungen (iPhone/iPad, hoch/quer). Sie zeigt das Set des vordersten Programms, Ordner öffnen
-  als eigene Seite, die „<“-Kachel geht zurück. Set-Wahl über den Set-Namen oder Wischen, die Stecknadel fixiert das Set (wie in der Mac-Menüleiste).
+  als eigene Seite, die „<“-Kachel geht zurück. Vollbild über „Zum Home-Bildschirm“ (Web-App, Kopplung wandert über die Adresse mit, Adresse mit dem Namen des Macs `.local`). Set-Wahl über den Set-Namen oder Wischen, die Stecknadel fixiert das Set (wie in der Mac-Menüleiste).
 - Buttons haben **kein Symbol**, nur Text (Beschriftung) und Farbe. Optional steht das Kürzel klein darunter.
 
 ## Entwurf im Canvas (noch zu bestätigen)

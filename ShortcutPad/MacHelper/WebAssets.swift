@@ -7,6 +7,9 @@ import Foundation
 /// beim Antippen geht das Kürzel an `POST /api/trigger`. Bearbeiten ist nur in der Mac-App möglich.
 /// Bewusst ohne Framework und nur mit älterer JavaScript-Syntax (var, function, keine Pfeilfunktionen).
 enum WebAssets {
+    /// Beschreibung der Web-App (Name, Vollbild, Symbole). Wird unter /manifest.webmanifest ausgeliefert.
+    static let manifestJSON = "{\"name\":\"ShortcutPad\",\"short_name\":\"ShortcutPad\",\"description\":\"Tastaturkürzel für den Mac per Fingertipp\",\"scope\":\"/\",\"display\":\"standalone\",\"orientation\":\"any\",\"background_color\":\"rgb(14, 15, 18)\",\"theme_color\":\"rgb(14, 15, 18)\",\"icons\":[{\"src\":\"/icon-192.png\",\"sizes\":\"192x192\",\"type\":\"image/png\"},{\"src\":\"/icon-512.png\",\"sizes\":\"512x512\",\"type\":\"image/png\"}]}"
+
     static let indexHTML = #"""
 <!doctype html>
 <html lang="de">
@@ -17,6 +20,9 @@ enum WebAssets {
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ShortcutPad">
 <meta name="color-scheme" content="dark">
+<meta name="theme-color" content="rgb(14, 15, 18)">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>ShortcutPad</title>
 <style>
   :root {
@@ -32,6 +38,7 @@ enum WebAssets {
     -webkit-user-select: none; user-select: none; touch-action: manipulation; overflow: hidden;
     background-image: radial-gradient(120% 40% at 50% 0%, rgba(var(--glow), .18), rgba(var(--glow), 0) 70%);
     background-repeat: no-repeat; }
+  html, body { overscroll-behavior: none; }
   button { font: inherit; color: inherit; }
   .hidden { display: none !important; }
   .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
@@ -77,6 +84,9 @@ enum WebAssets {
   .banner .bh { font-size: 11.5px; color: #c9b77e; }
   .banner button { margin-top: 4px; height: 48px; border: 0; border-radius: 12px; background: #f2f3f5; color: #111214; font-size: 15px; font-weight: 700; cursor: pointer; }
 
+  .hint { flex: none; margin: 10px var(--pad) 0; padding: 4px 4px 4px 14px; border-radius: 12px; background: #1c1d21; color: var(--dim);
+    font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .hint button { background: none; border: 0; color: var(--dim); font-size: 24px; width: 44px; height: 40px; cursor: pointer; }
   .gridwrap { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px var(--pad) 70px; }
   .grid { display: grid; gap: var(--gap); }
   .grid.off .tile { opacity: .4; pointer-events: none; }
@@ -161,6 +171,7 @@ enum WebAssets {
 <section id="padView" class="hidden">
   <div class="head" id="head"></div>
   <div id="banner" class="banner hidden"></div>
+  <div id="hint" class="hint hidden"></div>
   <div class="gridwrap" id="gridwrap"><div class="grid" id="grid"></div></div>
   <div class="dots" id="dots"></div>
   <div id="toast" class="toast hidden" role="status"></div>
@@ -182,6 +193,7 @@ enum WebAssets {
     home: '↖', end: '↘', pageUp: '⇞', pageDown: '⇟' };
 
   var TOKEN_KEY = 'pad.token.v1';
+  var HINT_KEY = 'pad.hint.v1';
 
   var token = load(TOKEN_KEY, '');
   var status = null;      // Antwort von /api/status
@@ -314,9 +326,41 @@ enum WebAssets {
     renderDigits();
   }
 
+  // Läuft die Seite als Web-App vom Home-Bildschirm (ohne Browserleisten)?
+  function isStandalone() {
+    return window.navigator.standalone === true ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  }
+
+  // Im Browser hängt die Seite die Kopplung an die Adresse. Wer dann „Zum Home-Bildschirm“ wählt, nimmt sie in die Web-App mit
+  // (die Web-App hat einen eigenen Speicher und sieht die Kopplung aus Safari sonst nicht).
+  function markUrl() {
+    if (isStandalone() || !token) { return; }
+    try { history.replaceState(null, '', '/#t=' + token); } catch (e) { /* egal */ }
+  }
+
+  function updateHint() {
+    var box = $('hint');
+    var ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isStandalone() || !ios || load(HINT_KEY, '') === '1') { box.classList.add('hidden'); return; }
+    box.textContent = '';
+    box.classList.remove('hidden');
+    box.appendChild(el('span', '', 'Für Vollbild: Teilen → „Zum Home-Bildschirm“'));
+    var close = el('button', '', '×');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Hinweis schließen');
+    close.addEventListener('click', function () {
+      save(HINT_KEY, '1');
+      box.classList.add('hidden');
+    });
+    box.appendChild(close);
+  }
+
   function showPad() {
     $('pairView').classList.add('hidden');
     $('padView').classList.remove('hidden');
+    markUrl();
+    updateHint();
     lastKey = '';
     startPolling();
     render();
@@ -762,6 +806,7 @@ enum WebAssets {
     online = false;
     status = null;
     library = null;
+    try { history.replaceState(null, '', '/'); } catch (e) { /* egal */ }
     showPair();
     $('pairError').textContent = expired ? 'Die Kopplung ist nicht mehr gültig. Bitte neu koppeln.' : '';
   }
@@ -786,6 +831,14 @@ enum WebAssets {
   }
 
   function start() {
+    // Kopplung aus der Adresse übernehmen (Web-App vom Home-Bildschirm, siehe markUrl)
+    var handed = /[#&]t=([0-9a-f]{16,64})/i.exec(window.location.hash || '');
+    if (handed && !findPin()) {
+      if (!token) { token = handed[1]; save(TOKEN_KEY, token); }
+      if (isStandalone()) {
+        try { history.replaceState(null, '', '/'); } catch (e) { /* egal */ }
+      }
+    }
     var match = findPin();
     if (match) {
       try { history.replaceState(null, '', '/'); } catch (e) { /* egal */ }

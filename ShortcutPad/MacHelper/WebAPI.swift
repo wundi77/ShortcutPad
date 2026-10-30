@@ -112,6 +112,22 @@ final class WebAPI {
         case ("GET", "/favicon.ico"):
             return .text("", status: 404)
 
+        case ("GET", "/manifest.webmanifest"):
+            return WebServer.Response(
+                status: 200,
+                contentType: "application/manifest+json; charset=utf-8",
+                body: Data(WebAssets.manifestJSON.utf8)
+            )
+
+        case ("GET", "/apple-touch-icon.png"), ("GET", "/apple-touch-icon-precomposed.png"):
+            return iconResponse(size: 180)
+
+        case ("GET", "/icon-192.png"):
+            return iconResponse(size: 192)
+
+        case ("GET", "/icon-512.png"):
+            return iconResponse(size: 512)
+
         case ("POST", "/api/pair"):
             return pair(request)
 
@@ -155,6 +171,11 @@ final class WebAPI {
             onLog("Web: unbekannte Anfrage \(request.method) \(request.path)")
             return .text("Nicht gefunden", status: 404)
         }
+    }
+
+    private func iconResponse(size: Int) -> WebServer.Response {
+        guard let data = AppIcon.pngData(size: size) else { return .text("", status: 404) }
+        return WebServer.Response(status: 200, contentType: "image/png", body: data)
     }
 
     private func unauthorized() -> WebServer.Response {

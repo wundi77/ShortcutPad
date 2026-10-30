@@ -128,7 +128,7 @@ struct HelperView: View {
                     .padding(10)
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                Text("Kamera am iPad oder iPhone auf den\nQR-Code richten und den Link antippen.\nDie Kopplung läuft dann automatisch.")
+                Text("Kamera am iPad oder iPhone auf den\nQR-Code richten und den Link antippen.\nDie Kopplung läuft dann automatisch.\nFür Vollbild danach: Teilen → Zum Home-Bildschirm.")
                     .font(.caption)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.secondary)
@@ -161,16 +161,23 @@ struct HelperView: View {
             Text("Ohne QR-Code: im Safari öffnen und den Code eingeben")
                 .font(.caption)
                 .foregroundColor(.secondary)
+            if let host = controller.webHostName {
+                Text(controller.webURL(for: host))
+                    .font(.system(.body, design: .monospaced))
+                    .textSelection(.enabled)
+                Text("Name des Macs: bleibt gleich, auch wenn sich die IP-Adresse ändert. Diesen nutzt der QR-Code.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Text(controller.webHostName == nil ? "IP-Adresse" : "Ersatz: IP-Adresse (kann sich ändern)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.top, 2)
             ForEach(controller.webAddresses, id: \.self) { ip in
                 Text(controller.webURL(for: ip))
                     .font(.system(.body, design: .monospaced))
                     .textSelection(.enabled)
-            }
-            if controller.webAddresses.count > 1 {
-                Text("Der QR-Code nutzt die erste Adresse. Erreicht das Gerät sie nicht, probiere eine der anderen.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

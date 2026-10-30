@@ -60,4 +60,7 @@ Zum reinen Kompilieren ohne Signing: `CODE_SIGNING_ALLOWED=NO` an `xcodebuild` a
   Das `Shortcut`-JSON steht in `Shared/Protocol.swift` (`modifiers` als String-Array).
 * Die Webseite fragt `GET /api/status` alle 1,5 s (`MacStatus`: Mac, Freigabe, vorderstes Programm, `revision`, `activeSetID`, `pinned`);
   daran erkennt die Mac-App, dass ein Gerät verbunden ist (`webClientActive`). Ändert sich `revision`, lädt die Seite `/api/library` neu.
+* Web-App-Betrieb: `/manifest.webmanifest` und die Symbole (`/apple-touch-icon.png`, `/icon-192.png`, `/icon-512.png`, gezeichnet in `AppIcon.swift`).
+  Die Seite hängt nach dem Koppeln `#t=<Token>` an die Adresse, damit „Zum Home-Bildschirm“ die Kopplung mitnimmt. Der QR-Code nutzt
+  `<Bonjour-Name>.local`, die IP-Adresse ist nur Ersatz.
 * Webseite testen ohne Mac: `tools/webtest/README.md`.

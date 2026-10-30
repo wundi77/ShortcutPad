@@ -66,7 +66,11 @@ Der Mac liefert die Seite im lokalen Netz aus. Voraussetzung: Mac und Gerät sin
     aktiven Programm. Ein Tipp auf einen Button löst das Kürzel am Mac aus (grüne Meldung unten). Ein Tipp auf einen **Ordner** öffnet
     die Ordnerseite; die hellgraue **„<“-Kachel** an erster Stelle springt zurück. Über den Set-Namen oben (oder Wischen nach links/rechts)
     wählst du ein anderes Set; der Stecknadel-Knopf oben rechts **fixiert** das Set, damit es nicht mehr mit dem Programm wechselt.
-16. Optional: In Safari **Teilen → Zum Home-Bildschirm** legt ein Symbol an, das die Seite ohne Safari-Leiste öffnet.
+16. **Vollbild ohne Browserleisten:** In Safari **Teilen → Zum Home-Bildschirm** (die Seite weist beim ersten Mal selbst darauf hin). Das Symbol
+    öffnet die Seite danach als Web-App ohne Adress- und Tableiste. Die Kopplung wandert dabei mit (sie steckt in der Adresse nach dem „#“).
+    Klappt das nicht und die Web-App zeigt die Kopplungsmaske, gib dort den im Mac-Fenster angezeigten Code ein.
+    * Am nächsten Tag: Mac-App starten, Symbol antippen. Der Code wird nur für eine neue Kopplung gebraucht.
+    * Das Symbol zeigt auf den **Namen des Macs** (z. B. `http://Mac-Studio.local:8765/`), der auch bei geänderter IP-Adresse gleich bleibt.
 
 | Test | Vorgehen | Erwartung |
 |---|---|---|

@@ -56,7 +56,7 @@ const post=(page,path,body)=>page.evaluate(([p,b])=>fetch(p,{method:'POST',body:
   // iPad quer / hoch, iPhone quer
   for (const [w,h,n] of [[1180,820,'ipad-quer'],[820,1180,'ipad-hoch'],[844,390,'iphone-quer']]){
     const t=await ctx(w,h,n);
-    await t.goto('http://localhost:8799/'); await t.evaluate(()=>localStorage.setItem('pad.token.v1','tok')); await t.reload(); await t.waitForTimeout(1500);
+    await t.goto('http://localhost:8799/'); await t.evaluate(()=>localStorage.setItem('pad.token.v1','0123456789abcdef0123456789abcdef')); await t.reload(); await t.waitForTimeout(1500);
     console.log(n,'cols:',await t.evaluate(()=>getComputedStyle(document.getElementById('grid')).gridTemplateColumns.split(' ').length),'tile:',await t.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--t')));
     await t.screenshot({path:'out/10-'+n+'.png'});
   }

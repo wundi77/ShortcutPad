@@ -24,8 +24,8 @@ http.createServer((req,res)=>{
     if(req.url==='/__state'){Object.assign(state,JSON.parse(body||'{}'));return send(200,state);}
     if(req.url==='/__log')return send(200,state.log);
     if(state.down){req.socket.destroy();return;}
-    if(req.url==='/api/pair'&&req.method==='POST'){const b=JSON.parse(body);return b.pin==='123456'?send(200,{token:'tok'}):send(403,{error:'Falscher Code'});}
-    if(req.headers['x-pad-token']!=='tok')return send(401,{error:'Nicht gekoppelt'});
+    if(req.url==='/api/pair'&&req.method==='POST'){const b=JSON.parse(body);return b.pin==='123456'?send(200,{token:'0123456789abcdef0123456789abcdef'}):send(403,{error:'Falscher Code'});}
+    if(req.headers['x-pad-token']!=='0123456789abcdef0123456789abcdef')return send(401,{error:'Nicht gekoppelt'});
     if(req.url==='/api/status')return send(200,{macName:'Mac Studio',accessibilityGranted:state.ax,frontmostApp:'Adobe Photoshop',revision:1+(state.style==='fill'?1:0),activeSetID:state.active,pinned:state.pinned});
     if(req.url==='/api/library')return send(200,{revision:1+(state.style==='fill'?1:0),sets:[photoshop(state.style),general],activeSetID:state.active,pinned:state.pinned});
     if(req.url==='/api/select'){const b=JSON.parse(body);if(b.setID){state.active=b.setID;state.pinned=true;}else{state.pinned=false;state.active='S1';}return send(200,{ok:true});}
