@@ -118,7 +118,7 @@ struct EditorView: View {
             }
 
             VStack(spacing: 12) {
-                HStack(spacing: 8) {
+                VStack(spacing: 8) {
                     Button {
                         if let id = store.addSet() {
                             selectedSetID = id
@@ -292,49 +292,55 @@ struct EditorView: View {
     }
 
     private func legendRow(_ set: PadSet) -> some View {
-        HStack(spacing: 12) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(set.groups) { group in
-                        Button {
-                            sheet = .group(group.id)
-                        } label: {
-                            HStack(spacing: 7) {
-                                Circle().fill(group.color.color).frame(width: 9, height: 9)
-                                Text(group.name).font(.system(size: 12.5, weight: .semibold))
-                                Text("\(set.buttons.filter { $0.groupID == group.id }.count)")
-                                    .font(.system(size: 11, design: .monospaced))
-                                    .foregroundColor(Theme.muted)
-                            }
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 5)
-                            .background(Capsule().fill(Theme.tile))
-                        }
-                        .buttonStyle(.plain)
-                    }
+        VStack(alignment: .leading, spacing: 10) {
+            FlowLayout(spacing: 8, rowSpacing: 8) {
+                ForEach(set.groups) { group in
                     Button {
-                        if let id = store.addGroup(to: set.id) {
-                            sheet = .group(id)
-                        }
+                        sheet = .group(group.id)
                     } label: {
-                        Text("+ Gruppe")
-                            .font(.system(size: 12.5, weight: .semibold))
-                            .foregroundColor(Theme.muted)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 5)
-                            .overlay(Capsule().stroke(Color(hex: 0x4A4D57), style: StrokeStyle(lineWidth: 1, dash: [4, 3])))
+                        HStack(spacing: 7) {
+                            Circle().fill(group.color.color).frame(width: 9, height: 9)
+                            Text(group.name)
+                                .font(.system(size: 12.5, weight: .semibold))
+                                .lineLimit(1)
+                            Text("\(set.buttons.filter { $0.groupID == group.id }.count)")
+                                .font(.system(size: 11, design: .monospaced))
+                                .foregroundColor(Theme.muted)
+                        }
+                        .fixedSize()
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 5)
+                        .background(Capsule().fill(Theme.tile))
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.vertical, 2)
+                Button {
+                    if let id = store.addGroup(to: set.id) {
+                        sheet = .group(id)
+                    }
+                } label: {
+                    Text("+ Gruppe")
+                        .font(.system(size: 12.5, weight: .semibold))
+                        .foregroundColor(Theme.muted)
+                        .lineLimit(1)
+                        .fixedSize()
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 5)
+                        .overlay(Capsule().stroke(Color(hex: 0x4A4D57), style: StrokeStyle(lineWidth: 1, dash: [4, 3])))
+                }
+                .buttonStyle(.plain)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            Button("Nach Gruppe sortieren") { store.sortByGroup(in: set.id) }
-                .buttonStyle(FlatButtonStyle(kind: .plain, compact: true))
-            Text("Ziehen zum Anordnen · Klick zum Bearbeiten")
-                .font(.system(size: 11.5))
-                .foregroundColor(Theme.muted)
-                .lineLimit(1)
+            HStack(spacing: 12) {
+                Button("Nach Gruppe sortieren") { store.sortByGroup(in: set.id) }
+                    .buttonStyle(FlatButtonStyle(kind: .secondary, compact: true))
+                Spacer()
+                Text("Ziehen zum Anordnen · Klick zum Bearbeiten")
+                    .font(.system(size: 11.5))
+                    .foregroundColor(Theme.muted)
+                    .lineLimit(1)
+            }
         }
         .padding(.horizontal, 28)
         .padding(.bottom, 18)
@@ -409,12 +415,9 @@ struct EditorView: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 FieldLabel("Kürzel")
-                HStack(spacing: 8) {
-                    KeyCapsRow(shortcut: button.shortcut)
-                    Spacer(minLength: 4)
-                    Button("Aufnehmen") { sheet = .recorder(button.id) }
-                        .buttonStyle(FlatButtonStyle(kind: .secondary, compact: true))
-                }
+                KeyCapsRow(shortcut: button.shortcut)
+                Button("Aufnehmen") { sheet = .recorder(button.id) }
+                    .buttonStyle(FlatButtonStyle(kind: .secondary, compact: true))
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -453,23 +456,32 @@ struct EditorView: View {
                 .labelsHidden()
             }
 
-            HStack(spacing: 8) {
-                Button("Am Mac testen") {
+            VStack(alignment: .leading, spacing: 8) {
+                Button {
                     controller.test(button.shortcut, targetBundleID: set.appBundleID)
+                } label: {
+                    Text("Am Mac testen").frame(maxWidth: .infinity)
                 }
                 .buttonStyle(FlatButtonStyle(kind: .secondary))
-                Button("Duplizieren") {
-                    if let id = store.duplicateButton(button.id, in: set.id) {
-                        selectedButtonID = id
+
+                HStack(spacing: 8) {
+                    Button {
+                        if let id = store.duplicateButton(button.id, in: set.id) {
+                            selectedButtonID = id
+                        }
+                    } label: {
+                        Text("Duplizieren").frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(FlatButtonStyle(kind: .secondary))
+
+                    Button {
+                        store.deleteButton(button.id, in: set.id)
+                        selectedButtonID = nil
+                    } label: {
+                        Text("Löschen").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(FlatButtonStyle(kind: .danger))
                 }
-                .buttonStyle(FlatButtonStyle(kind: .secondary))
-                Spacer(minLength: 0)
-                Button("Löschen") {
-                    store.deleteButton(button.id, in: set.id)
-                    selectedButtonID = nil
-                }
-                .buttonStyle(FlatButtonStyle(kind: .danger))
             }
         }
     }

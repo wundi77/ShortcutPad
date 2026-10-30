@@ -24,6 +24,7 @@ private struct FlatButtonBody: View {
     var body: some View {
         configuration.label
             .font(.system(size: compact ? 12 : 13, weight: .semibold))
+            .lineLimit(1)
             .padding(.horizontal, compact ? 10 : 14)
             .padding(.vertical, compact ? 5 : 8)
             .foregroundColor(foreground)
@@ -94,22 +95,72 @@ struct KeyCap: View {
 }
 
 extension Shortcut {
-    /// Tasten einzeln, in der Reihenfolge ⌃ ⌥ ⇧ ⌘ und dann die Taste selbst.
-    var capSymbols: [String] {
+    /// Zusatztasten in der Reihenfolge ⌃ ⌥ ⇧ ⌘.
+    var modifierSymbols: [String] {
         let order: [KeyModifier] = [.control, .option, .shift, .command]
-        return order.filter { modifiers.contains($0) }.map { $0.symbol } + [keyDisplay]
+        return order.filter { modifiers.contains($0) }.map { $0.symbol }
     }
 }
 
+/// Zeigt ein Kürzel als Tasten: Zusatztasten, ein „+“ und dann die eigentliche Taste (z. B. ⌥ ⇧ ⌘ + S).
 struct KeyCapsRow: View {
     let shortcut: Shortcut
     var large = false
 
     var body: some View {
         HStack(spacing: large ? 10 : 6) {
-            ForEach(Array(shortcut.capSymbols.enumerated()), id: \.offset) { entry in
+            ForEach(Array(shortcut.modifierSymbols.enumerated()), id: \.offset) { entry in
                 KeyCap(symbol: entry.element, large: large)
             }
+            if !shortcut.modifiers.isEmpty {
+                Text("+")
+                    .font(.system(size: large ? 22 : 13, weight: .regular, design: .monospaced))
+                    .foregroundColor(Theme.muted)
+            }
+            KeyCap(symbol: shortcut.keyDisplay, large: large)
+        }
+    }
+}
+
+/// Ordnet Elemente nebeneinander an und bricht bei Platzmangel in eine neue Zeile um.
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+    var rowSpacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? CGFloat.infinity
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        var usedWidth: CGFloat = 0
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x > 0 && x + size.width > maxWidth {
+                y += rowHeight + rowSpacing
+                x = 0
+                rowHeight = 0
+            }
+            x += size.width + spacing
+            usedWidth = max(usedWidth, x - spacing)
+            rowHeight = max(rowHeight, size.height)
+        }
+        return CGSize(width: proposal.width ?? usedWidth, height: y + rowHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x = bounds.minX
+        var y = bounds.minY
+        var rowHeight: CGFloat = 0
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x > bounds.minX && x + size.width > bounds.maxX {
+                y += rowHeight + rowSpacing
+                x = bounds.minX
+                rowHeight = 0
+            }
+            subview.place(at: CGPoint(x: x, y: y), anchor: .topLeading, proposal: ProposedViewSize(size))
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
         }
     }
 }
