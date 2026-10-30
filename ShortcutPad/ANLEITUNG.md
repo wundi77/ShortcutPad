@@ -8,14 +8,14 @@ Teil 1–6: USB-App. Teil 7: Webseite im Safari (ohne iPad-App und ohne Kabel).
 
 ## Teil 1 – Vorbereitung am Mac
 
-1. **ZIP entpacken**, z. B. nach `~/Developer/ShortcutPadTest`.
+1. **Repository holen** (github.com/wundi77/ShortcutPad, z. B. nach `~/Developer/ShortcutPad`); das Xcode-Projekt liegt im Unterordner `ShortcutPad/`.
 2. **Xcode einmal öffnen** und die Lizenz sowie zusätzliche Komponenten bestätigen, falls Xcode danach fragt.
 3. **Apple-ID in Xcode hinzufügen:** Xcode → Settings → Accounts → **+** → Apple-ID anmelden.
    Danach steht dort ein „Personal Team“.
 4. **Homebrew** muss installiert sein (siehe brew.sh). Das Skript braucht es, um XcodeGen zu installieren.
 5. **Terminal öffnen** und ausführen:
    ```
-   cd ~/Developer/ShortcutPadTest
+   cd ~/Developer/ShortcutPad/ShortcutPad
    chmod +x setup.sh
    xattr -dr com.apple.quarantine .
    ./setup.sh
@@ -25,7 +25,7 @@ Teil 1–6: USB-App. Teil 7: Webseite im Safari (ohne iPad-App und ohne Kabel).
 
 ## Teil 2 – Signatur einstellen (einmalig)
 
-6. Links in der Dateileiste ganz oben auf **ShortcutPadTest** klicken (blaues Symbol).
+6. Links in der Dateileiste ganz oben auf **ShortcutPad** klicken (blaues Symbol).
 7. Unter **Targets** zuerst **ShortcutPad** wählen → Tab **Signing & Capabilities** →
    bei **Team** dein **Personal Team** auswählen.
 8. Dasselbe beim Target **ShortcutPadHelper**.

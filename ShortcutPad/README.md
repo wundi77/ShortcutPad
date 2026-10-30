@@ -37,7 +37,7 @@ Mindestversionen: iOS 16 / macOS 13 (in `project.yml` änderbar, dann Code gegeb
 ## Einrichtung
 
 1. Im Terminal: `./setup.sh`
-   (installiert bei Bedarf XcodeGen über Homebrew, erzeugt `ShortcutPadTest.xcodeproj` und öffnet es.)
+   (installiert bei Bedarf XcodeGen über Homebrew, erzeugt `ShortcutPad.xcodeproj` und öffnet es.)
    Eine Team-ID brauchst du dafür nicht. Das Bundle-Präfix kannst du in `Config/Signing.xcconfig` ändern.
 2. Kostenlose Apple-ID in Xcode hinzufügen (Settings → Accounts). Dann bei **beiden Targets**
    (ShortcutPad und ShortcutPadHelper) unter „Signing & Capabilities“ das **Personal Team** wählen.

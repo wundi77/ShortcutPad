@@ -21,8 +21,8 @@ in `PadMessage`, die die iOS-App mitbehandeln muss).
 ```
 # Team-ID ist optional: setup.sh liest sie aus dem Zertifikat oder weist darauf hin (Personal Team, kostenlose Apple-ID)
 xcodegen generate
-xcodebuild -project ShortcutPadTest.xcodeproj -scheme ShortcutPadHelper -destination 'platform=macOS' build
-xcodebuild -project ShortcutPadTest.xcodeproj -scheme ShortcutPad -destination 'generic/platform=iOS' build
+xcodebuild -project ShortcutPad.xcodeproj -scheme ShortcutPadHelper -destination 'platform=macOS' build
+xcodebuild -project ShortcutPad.xcodeproj -scheme ShortcutPad -destination 'generic/platform=iOS' build
 ```
 
 Zum reinen Kompilieren ohne Signing: `CODE_SIGNING_ALLOWED=NO` an `xcodebuild` anhängen.

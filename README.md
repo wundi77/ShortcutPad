@@ -5,7 +5,7 @@ Sets, Buttons und Kürzel werden ausschließlich in der Mac-App verwaltet.
 
 | Ordner | Inhalt |
 | --- | --- |
-| `ShortcutPadTest/` | Xcode-Projekt (per XcodeGen): Mac-App `MacHelper/`, iOS-App `iOSApp/`, gemeinsamer Code `Shared/`. Einrichtung in `ShortcutPadTest/ANLEITUNG.md` |
+| `ShortcutPad/` | Xcode-Projekt (per XcodeGen): Mac-App `MacHelper/`, iOS-App `iOSApp/`, gemeinsamer Code `Shared/`. Einrichtung in `ShortcutPad/ANLEITUNG.md` |
 | `design/canvas/` | Quellen des Design-Canvas (Mac-App, iOS/Web, Zustände) |
 | `docs/Designentscheidungen.md` | Festgelegte Design- und Bedienentscheidungen |
 | `docs/Projektprotokoll.md` | Projektprotokoll und Basis-Prompt |

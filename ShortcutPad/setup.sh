@@ -46,4 +46,4 @@ if ! command -v xcodegen >/dev/null 2>&1; then
 fi
 
 xcodegen generate
-open ShortcutPadTest.xcodeproj
+open ShortcutPad.xcodeproj
