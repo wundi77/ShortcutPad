@@ -14,6 +14,15 @@ private struct WebTriggerResult: Codable {
     var message: String
 }
 
+private struct WebSelectRequest: Codable {
+    /// UUID des Sets, das fixiert werden soll. Nil: wieder automatisch nach vorderstem Programm wählen.
+    var setID: String?
+}
+
+private struct WebSelectResult: Codable {
+    var ok: Bool
+}
+
 private struct WebPairRequest: Codable {
     var pin: String
 }
@@ -42,8 +51,10 @@ final class WebAPI {
     private var lastClientSeen = Date.distantPast
 
     var statusProvider: () -> MacStatus = {
-        MacStatus(macName: "Mac", accessibilityGranted: false, frontmostApp: "–")
+        MacStatus(macName: "Mac", accessibilityGranted: false, frontmostApp: "–", revision: 0, activeSetID: nil, pinned: false)
     }
+    /// Wählt ein Set (fixiert es) oder gibt es frei (nil). Gibt false zurück, wenn es das Set nicht gibt.
+    var selectHandler: (UUID?) -> Bool = { _ in false }
     var executor: (Shortcut) -> ShortcutOutcome = { _ in
         ShortcutOutcome(ok: false, message: "nicht verfügbar")
     }
@@ -107,6 +118,21 @@ final class WebAPI {
         case ("GET", "/api/library"):
             guard isAuthorized(request) else { return unauthorized() }
             return .json(libraryProvider())
+
+        case ("POST", "/api/select"):
+            guard isAuthorized(request) else { return unauthorized() }
+            guard let body = try? JSONDecoder().decode(WebSelectRequest.self, from: request.body) else {
+                return .json(WebError(error: "Ungültige Anfrage"), status: 400)
+            }
+            var target: UUID?
+            if let text = body.setID {
+                guard let parsed = UUID(uuidString: text) else {
+                    return .json(WebError(error: "Ungültige Set-ID"), status: 400)
+                }
+                target = parsed
+            }
+            let ok = selectHandler(target)
+            return .json(WebSelectResult(ok: ok), status: ok ? 200 : 404)
 
         case ("POST", "/api/trigger"):
             guard isAuthorized(request) else { return unauthorized() }

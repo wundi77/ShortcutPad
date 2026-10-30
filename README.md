@@ -6,6 +6,7 @@ Sets, Buttons, Ordner und Kürzel werden ausschließlich in der Mac-App verwalte
 | Ordner | Inhalt |
 | --- | --- |
 | `ShortcutPad/` | Xcode-Projekt (per XcodeGen): Mac-App `MacHelper/`, gemeinsamer Code `Shared/`. Einrichtung in `ShortcutPad/ANLEITUNG.md` |
+| `ShortcutPad/tools/webtest/` | Browsertest der Webseite gegen einen Mock-Server |
 | `design/canvas/` | Quellen des Design-Canvas (Mac-App, iOS/Web, Zustände) |
 | `docs/Designentscheidungen.md` | Festgelegte Design- und Bedienentscheidungen |
 | `docs/Projektprotokoll.md` | Projektprotokoll und Basis-Prompt |
@@ -15,4 +16,5 @@ Sets, Buttons, Ordner und Kürzel werden ausschließlich in der Mac-App verwalte
 
 - Mac-App mit Sets, Ordnern, Import/Export und Menüleiste ist geschrieben, aber noch nicht neu in Xcode gebaut.
 - USB und iOS-App sind entfernt; die Webseite ist der einzige Client.
-- Nächster Schritt: Die Webseite zeigt die Sets und Ordner an (bisher noch der Ein-Button-Test).
+- Die Webseite zeigt Sets, Buttons und Ordner an (im Browser gegen einen Mock getestet, auf dem Mac noch nicht).
+- Nächster Schritt: Mac-App bauen, mit dem iPad testen (`ShortcutPad/ANLEITUNG.md`).

@@ -52,17 +52,23 @@ Der Mac liefert die Seite im lokalen Netz aus. Voraussetzung: Mac und Gerät sin
     * Im Fenster erscheinen **Adresse** (z. B. `http://192.168.178.25:8765/`), **Kopplungscode** und **QR-Code**.
 14. **Am iPad/iPhone:** Kamera auf den QR-Code richten und den Link antippen (öffnet Safari und koppelt automatisch).
     Alternativ in Safari die Adresse eintippen und den 6-stelligen Code eingeben.
-15. Die Seite zeigt oben **„Mac verbunden“** und das aktive Programm. Hinweis: Die Seite zeigt vorerst noch den einen Test-Button.
-    Sets und Ordner aus der Mac-App folgen im nächsten Schritt.
+15. Die Seite zeigt das **Set des vordersten Programms** mit allen Buttons und Ordnern und darunter eine Statuszeile mit dem Mac und dem
+    aktiven Programm. Ein Tipp auf einen Button löst das Kürzel am Mac aus (grüne Meldung unten). Ein Tipp auf einen **Ordner** öffnet
+    die Ordnerseite; die hellgraue **„<“-Kachel** an erster Stelle springt zurück. Über den Set-Namen oben (oder Wischen nach links/rechts)
+    wählst du ein anderes Set; der Stecknadel-Knopf oben rechts **fixiert** das Set, damit es nicht mehr mit dem Programm wechselt.
 16. Optional: In Safari **Teilen → Zum Home-Bildschirm** legt ein Symbol an, das die Seite ohne Safari-Leiste öffnet.
 
 | Test | Vorgehen | Erwartung |
 |---|---|---|
-| F1 – Seite erreichbar | QR scannen oder Adresse öffnen | Seite lädt, nach Kopplung „Mac verbunden“ |
-| F2 – Auslösen | TextEdit öffnen (Rich Text), Text markieren, in TextEdit klicken, am iPad den Button tippen | Text wird fett; im Fenster „Verbindung und Kopplung“ steht `[Web]` |
-| F3 – Kürzel ändern | „Ändern“ antippen, Modifier und Taste wählen | Beschriftung des Buttons ändert sich, bleibt nach Neuladen erhalten |
-| F4 – Schutz | Zweites Gerät mit falschem Code koppeln | „Falscher Code“; nach 5 Fehlversuchen 30 Sekunden Sperre |
-| F5 – Zurücksetzen | „Kopplungen löschen“ im Mac-Fenster | Gerät meldet „Kopplung nicht mehr gültig“ |
+| F1 – Seite erreichbar | QR scannen oder Adresse öffnen | Seite lädt, nach Kopplung erscheint das Set mit grünem Punkt in der Statuszeile |
+| F2 – Auslösen | In der Mac-App einem Button ⌘B geben, TextEdit öffnen (Rich Text), Text markieren, in TextEdit klicken, am iPad den Button tippen | Text wird fett; im Fenster „Verbindung und Kopplung“ steht `[Web]` |
+| F3 – Ordner | Ordner antippen, dann die „<“-Kachel | Ordnerseite mit „<“ an erster Stelle, danach wieder die Hauptebene |
+| F4 – Set wechseln | Programm am Mac wechseln (z. B. von Photoshop zu TextEdit) | Die Seite zeigt nach 1–2 Sekunden das passende Set („Allgemein“, wenn keins zugeordnet ist) |
+| F5 – Fixieren | Stecknadel antippen, dann am Mac das Programm wechseln | Das Set bleibt; Tag „FIXIERT“. Nochmal tippen: wieder „AUTO“ |
+| F6 – Änderung am Mac | In der Mac-App einen Button umbenennen | Die Seite zeigt den neuen Namen nach 1–2 Sekunden |
+| F7 – Schutz | Zweites Gerät mit falschem Code koppeln | „Falscher Code“; nach 5 Fehlversuchen 30 Sekunden Sperre |
+| F8 – Zurücksetzen | „Kopplungen löschen“ im Mac-Fenster | Gerät meldet „Die Kopplung ist nicht mehr gültig“ |
+| F9 – Ohne Freigabe / Mac aus | Bedienungshilfen entziehen bzw. Webseite am Mac ausschalten | Gelbe bzw. rote Meldung wie im Design, Buttons gedimmt |
 
 Gut zu wissen:
 * Die Verbindung ist **unverschlüsselt (HTTP)**. Im Heimnetz in Ordnung, in fremden Netzen nicht verwenden.
@@ -96,8 +102,8 @@ erscheint ein Symbol. Das Fenster darf geschlossen werden, die App läuft weiter
    Programm wechselt. Ein Klick auf ein Set fixiert es ebenfalls; „Wieder automatisch wählen“ hebt das auf.
 9. **Verbindung und Kopplung** (Menüleiste oder Chip oben rechts im Editor): Webseite, Kopplungscode, QR-Code, Berechtigung, Protokoll.
 
-Die Sets liegen in `~/Library/Application Support/ShortcutPad/sets.json`. Die Webseite zeigt die Sets in einem
-nächsten Schritt an; die Daten liefert der Mac schon über `GET /api/library` (mit Token).
+Die Sets liegen in `~/Library/Application Support/ShortcutPad/sets.json`. Die Webseite lädt sie über `GET /api/library`
+und aktualisiert sich selbst, sobald du am Mac etwas änderst.
 
 ### Tests der Mac-App
 

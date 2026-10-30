@@ -230,18 +230,33 @@ final class HelperController: ObservableObject {
 
         webAPI.statusProvider = { [weak self] in
             guard let self = self else {
-                return MacStatus(macName: "Mac", accessibilityGranted: false, frontmostApp: "–")
+                return MacStatus(macName: "Mac", accessibilityGranted: false, frontmostApp: "–", revision: 0, activeSetID: nil, pinned: false)
             }
             return self.onMainSync {
                 MacStatus(
                     macName: self.macName,
                     accessibilityGranted: self.accessibilityGranted,
-                    frontmostApp: self.frontmostApp
+                    frontmostApp: self.frontmostApp,
+                    revision: self.store.revision,
+                    activeSetID: self.activeSetID?.uuidString,
+                    pinned: self.pinnedSetID != nil
                 )
             }
         }
         webAPI.executor = { [weak self] shortcut in
             self?.executeShortcut(shortcut, source: "Web") ?? ShortcutOutcome(ok: false, message: "Helper beendet")
+        }
+        webAPI.selectHandler = { [weak self] id in
+            guard let self = self else { return false }
+            return self.onMainSync { () -> Bool in
+                if let id = id {
+                    guard self.store.set(withID: id) != nil else { return false }
+                    self.selectSet(id)
+                } else {
+                    self.unpin()
+                }
+                return true
+            }
         }
         webAPI.libraryProvider = { [weak self] in
             self?.libraryPayload() ?? PadLibraryPayload(revision: 0, sets: [], activeSetID: nil, pinned: false)

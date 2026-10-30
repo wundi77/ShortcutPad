@@ -112,4 +112,10 @@ struct MacStatus: Codable {
     var macName: String
     var accessibilityGranted: Bool
     var frontmostApp: String
+    /// Zähler der Sets. Ändert er sich, lädt die Webseite die Sets neu (`GET /api/library`).
+    var revision: Int
+    /// Das Set, das gerade angezeigt werden soll (UUID als Text).
+    var activeSetID: String?
+    /// true, wenn das Set am Mac oder von der Webseite fixiert wurde (kein automatischer Wechsel).
+    var pinned: Bool
 }

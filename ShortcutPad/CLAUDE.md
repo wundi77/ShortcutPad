@@ -15,8 +15,11 @@ in `HelperController`, `WebAPI`, `ShortcutPadHelperApp`). Der Nutzer hat eine fr
 Entfernen von USB und iOS-App ist noch nicht neu gebaut worden. Design-Vorlage: `design/canvas/`, Beschlüsse in
 `docs/Designentscheidungen.md`.
 
-**Nächster Schritt:** Die Webseite (`MacHelper/WebAssets.swift`) zeigt noch den alten Ein-Button-Test. Sie soll die Sets laden
-(`GET /api/library`), das aktive Set zeigen, Ordnerseiten mit der „<“-Kachel kennen und beim Antippen `POST /api/trigger` senden.
+**Webseite:** `MacHelper/WebAssets.swift` zeigt Sets, Buttons und Ordner (Ordnerseite mit „<“-Kachel, Set-Wahl, Fixieren, Fehlerzustände).
+Sie wurde im Browser gegen einen Mock getestet (`tools/webtest/`), auf dem Mac aber noch nicht. Das Swift-Gegenstück (`POST /api/select`,
+erweiterter Status) ist nicht kompiliert.
+
+**Nächster Schritt:** Mac-App bauen und mit dem iPad testen (ANLEITUNG, Tests F1–F9 und G–R), Fehler beheben.
 
 ## Projekt erzeugen und bauen
 
@@ -51,6 +54,9 @@ Zum reinen Kompilieren ohne Signing: `CODE_SIGNING_ALLOWED=NO` an `xcodebuild` a
 ## Schnittstelle
 
 * Browser ⇄ Mac: HTTP/1.1, JSON, eine Anfrage pro Verbindung. `GET /`, `POST /api/pair {pin}`, `GET /api/status`,
-  `GET /api/library` (Sets plus aktives Set, `PadLibraryPayload`), `POST /api/trigger {shortcut}`; Token im Header `X-Pad-Token`.
+  `GET /api/library` (Sets plus aktives Set, `PadLibraryPayload`), `POST /api/select {setID|null}` (Set fixieren bzw. wieder automatisch),
+  `POST /api/trigger {shortcut}`; Token im Header `X-Pad-Token`.
   Das `Shortcut`-JSON steht in `Shared/Protocol.swift` (`modifiers` als String-Array).
-* Die Webseite fragt `GET /api/status` alle 1,5 s; daran erkennt die Mac-App, dass ein Gerät verbunden ist (`webClientActive`).
+* Die Webseite fragt `GET /api/status` alle 1,5 s (`MacStatus`: Mac, Freigabe, vorderstes Programm, `revision`, `activeSetID`, `pinned`);
+  daran erkennt die Mac-App, dass ein Gerät verbunden ist (`webClientActive`). Ändert sich `revision`, lädt die Seite `/api/library` neu.
+* Webseite testen ohne Mac: `tools/webtest/README.md`.
