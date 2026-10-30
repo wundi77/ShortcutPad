@@ -1,0 +1,11 @@
+# macOS / Xcode
+.DS_Store
+*.xcodeproj
+xcuserdata/
+DerivedData/
+build/
+
+# Werkzeug-Reste
+*.whl
+__pycache__/
+*.pyc
