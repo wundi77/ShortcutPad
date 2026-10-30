@@ -34,6 +34,15 @@ Auf dem iPad läuft nur Safari: keine App, kein Kabel, kein Entwicklerkonto auf 
 
 ## Teil 3 – Mac-App starten
 
+**Schnellweg ohne Xcode-Fenster:** Im Finder im Ordner `ShortcutPad/` die Datei **`build.command`** doppelklicken. Sie erzeugt das Projekt,
+baut die Mac-App, startet sie und zeigt bei Fehlern die Meldungen an (liegen dann auch in der Zwischenablage). Beim allerersten Mal
+einmal im Terminal `cd ~/Developer/ShortcutPad/ShortcutPad && chmod +x build.command setup.sh && xattr -dr com.apple.quarantine .`
+ausführen, damit macOS den Doppelklick erlaubt. Ist ein Personal Team eingetragen (Teil 2), wird damit signiert; sonst lokal, dann musst du die
+Bedienungshilfen-Freigabe nach jedem neuen Build erneut erteilen. Die fertige App liegt in `build/Build/Products/Release/ShortcutPadHelper.app`.
+Mit `./build.command --no-start` wird nur gebaut, mit `--debug` ein Debug-Build.
+
+**Oder mit Xcode:**
+
 8. In der Werkzeugleiste oben: Schema **ShortcutPadHelper**, Ziel **My Mac** (ohne Zusatz „Designed for iPad“).
 9. **⌘R** drücken. Die App baut und öffnet das Fenster **ShortcutPad**; in der Menüleiste erscheint ein Raster-Symbol.
 10. **Bedienungshilfen erlauben:** Systemeinstellungen → Datenschutz & Sicherheit → Bedienungshilfen →

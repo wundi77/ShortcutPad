@@ -24,7 +24,8 @@ erweiterter Status) ist nicht kompiliert.
 ## Projekt erzeugen und bauen
 
 ```
-# Team-ID ist optional: setup.sh liest sie aus dem Zertifikat oder weist darauf hin (Personal Team, kostenlose Apple-ID)
+./build.command        # Projekt erzeugen, bauen, starten (Doppelklick im Finder genügt); Optionen --no-start, --debug
+# oder von Hand. Team-ID ist optional: setup.sh liest sie aus dem Zertifikat oder weist darauf hin (Personal Team, kostenlose Apple-ID)
 xcodegen generate
 xcodebuild -project ShortcutPad.xcodeproj -scheme ShortcutPadHelper -destination 'platform=macOS' build
 ```

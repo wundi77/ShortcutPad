@@ -1,5 +1,5 @@
 #!/bin/bash
-# Erzeugt das Xcode-Projekt aus project.yml und öffnet es.
+# Erzeugt das Xcode-Projekt aus project.yml und öffnet es (außer mit --no-open).
 # Funktioniert auch ohne Team-ID (kostenlose Apple-ID): Dann wählst du das „Personal Team“
 # einmal in Xcode aus, und ein erneuter Lauf dieses Skripts übernimmt die ID selbst.
 set -e
@@ -46,4 +46,8 @@ if ! command -v xcodegen >/dev/null 2>&1; then
 fi
 
 xcodegen generate
-open ShortcutPad.xcodeproj
+
+# Mit --no-open (von build.command benutzt) wird Xcode nicht geöffnet.
+if [ "$1" != "--no-open" ]; then
+  open ShortcutPad.xcodeproj
+fi
