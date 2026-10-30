@@ -454,7 +454,7 @@ struct PadFile: Codable {
     var sets: [PadSet]
 }
 
-/// Was der Mac an iPad/iPhone/Webseite ausliefert: alle Sets und das gerade aktive.
+/// Was der Mac an die Webseite ausliefert: alle Sets und das gerade aktive.
 struct PadLibraryPayload: Codable {
     var revision: Int
     var sets: [PadSet]

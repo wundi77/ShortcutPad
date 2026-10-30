@@ -116,7 +116,7 @@ struct EditorView: View {
         } label: {
             HStack(spacing: 8) {
                 Circle()
-                    .fill(controller.linkedDeviceName != nil || controller.webPairedCount > 0 ? Theme.live : Theme.muted)
+                    .fill(controller.webClientActive ? Theme.live : Theme.muted)
                     .frame(width: 8, height: 8)
                 Text(connectionText)
                     .font(.system(size: 12.5))
@@ -126,16 +126,10 @@ struct EditorView: View {
     }
 
     private var connectionText: String {
-        var parts = [String]()
-        if let name = controller.linkedDeviceName {
-            parts.append("\(name) · USB")
-        } else {
-            parts.append("Kein Gerät per USB")
-        }
-        if controller.webRunning {
-            parts.append("Web · \(controller.webPairedCount) Gerät(e)")
-        }
-        return parts.joined(separator: "  |  ")
+        guard controller.webRunning else { return "Webseite aus" }
+        let count = controller.webPairedCount
+        let devices = count == 1 ? "1 Gerät" : "\(count) Geräte"
+        return controller.webClientActive ? "Webseite verbunden · \(devices)" : "Webseite bereit · \(devices) gekoppelt"
     }
 
     // MARK: Sets
@@ -177,7 +171,7 @@ struct EditorView: View {
                     }
                     .buttonStyle(FlatButtonStyle(kind: .secondary, compact: true))
                 }
-                Text("Buttons und Kürzel lassen sich nur hier bearbeiten. iPad, iPhone und die Webseite zeigen sie an.")
+                Text("Buttons und Kürzel lassen sich nur hier bearbeiten. Die Webseite am iPad oder iPhone zeigt sie an.")
                     .font(.system(size: 11.5))
                     .foregroundColor(Theme.muted)
                     .fixedSize(horizontal: false, vertical: true)
@@ -245,7 +239,7 @@ struct EditorView: View {
                     folder: currentFolder,
                     device: device,
                     selectedID: $selectedID,
-                    isConnected: controller.linkedDeviceName != nil || controller.webPairedCount > 0,
+                    isConnected: controller.webClientActive,
                     onOpen: { id in openFolder(id) },
                     onBack: { closeFolder() },
                     onReorder: { dragged, target in store.reorder(dragged, onto: target, in: set.id) },

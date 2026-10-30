@@ -3,5 +3,5 @@
 // Du kannst sie auch von Hand eintragen (10 Zeichen).
 DEVELOPMENT_TEAM =
 
-// Muss weltweit eindeutig sein. Daraus werden "<Präfix>.ios" und "<Präfix>.helper".
+// Muss weltweit eindeutig sein. Daraus wird "<Präfix>.helper".
 PAD_BUNDLE_PREFIX = com.wundi77.shortcutpad

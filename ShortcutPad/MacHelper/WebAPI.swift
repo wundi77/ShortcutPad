@@ -39,6 +39,7 @@ final class WebAPI {
     private var currentPIN: String
     private var failedAttempts = 0
     private var lockedUntil = Date.distantPast
+    private var lastClientSeen = Date.distantPast
 
     var statusProvider: () -> MacStatus = {
         MacStatus(macName: "Mac", accessibilityGranted: false, frontmostApp: "–")
@@ -62,6 +63,13 @@ final class WebAPI {
         lock.lock()
         defer { lock.unlock() }
         return currentPIN
+    }
+
+    /// Hat sich in den letzten Sekunden eine gekoppelte Webseite gemeldet? Die Seite fragt alle 1,5 Sekunden nach.
+    var clientSeenRecently: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return Date().timeIntervalSince(lastClientSeen) < 5
     }
 
     var pairedCount: Int {
@@ -121,7 +129,9 @@ final class WebAPI {
         guard let token = request.headers["x-pad-token"], !token.isEmpty else { return false }
         lock.lock()
         defer { lock.unlock() }
-        return tokens.contains(token)
+        let known = tokens.contains(token)
+        if known { lastClientSeen = Date() }
+        return known
     }
 
     private func pair(_ request: WebServer.Request) -> WebServer.Response {

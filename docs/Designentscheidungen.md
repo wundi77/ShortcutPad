@@ -31,8 +31,9 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 
 ## Regeln aus dem Briefing
 
-- Sets, Buttons, Kürzel, Farben werden **ausschließlich am Mac** bearbeitet. iOS-App und Webseite zeigen nur an und lösen aus.
-- Webseite und iOS-App haben dieselbe Optik, responsiv für alle Größen und Ausrichtungen.
+- Sets, Buttons, Kürzel, Farben werden **ausschließlich am Mac** bearbeitet. Die Webseite zeigt nur an und löst aus.
+- **Nur Webseite** (Kopplung per QR-Code und Code). USB, iOS-App und Bluetooth sind entfernt bzw. vertagt und kommen eventuell später.
+- Die Webseite ist responsiv für alle Größen und Ausrichtungen (iPhone/iPad, hoch/quer).
 - Buttons haben **kein Symbol**, nur Text (Beschriftung) und Farbe. Optional steht das Kürzel klein darunter.
 
 ## Entwurf im Canvas (noch zu bestätigen)
@@ -45,6 +46,6 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 ## Technische Folgen für die Umsetzung
 
 - Datenhaltung auf dem Mac (JSON in Application Support). Neue Routen/Nachrichten: Sets abrufen, aktives Set melden.
-  `executeShortcut` bleibt der einzige Auslöse-Pfad (USB und Web).
+  `executeShortcut` bleibt der einzige Auslöse-Pfad.
 - Das Kürzel-Modell bekommt Beschriftung, Farbe, Gruppe; `Shared/Protocol.swift` wird um Set/Button erweitert.
 - Offen laut Projektprotokoll: Zeichen mit Zusatztaste („/“, „#“) im Aufnahme-Dialog warnen statt still scheitern.

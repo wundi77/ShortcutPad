@@ -43,7 +43,7 @@
       "x": 3080,
       "y": 300,
       "w": 640,
-      "h": 800,
+      "h": 700,
       "title": "Mac · Verbindung und Kopplung"
     },
     "Mac-Import-Export.dc.html": {
@@ -185,7 +185,7 @@
     "t-pad": {
       "x": 0,
       "y": 1300,
-      "text": "iOS-App und Webseite: gleiche Optik, nur Bedienung",
+      "text": "Webseite am iPhone und iPad (Safari)",
       "kind": "title1",
       "maxW": 3474
     },

@@ -1,20 +1,22 @@
 # ShortcutPad – Hinweise für Claude Code
 
-Projekt: iOS-App (`iOSApp/`) + Mac-Helper (`MacHelper/`) + gemeinsamer Code (`Shared/`).
-Der iOS-Button schickt ein Tastenkürzel per USB (usbmuxd-Tunnel) an den Mac-Helper, der es per CGEvent
-an das aktive Programm sendet. Alternativ liefert der Helper eine Webseite im lokalen Netz aus (Safari statt App). Sprache in UI und Kommentaren: Deutsch.
+Projekt: Mac-App (`MacHelper/`) + gemeinsamer Code (`Shared/`). Der Mac liefert im lokalen Netz eine Webseite aus
+(Port 8765, Kopplung per QR-Code und 6-stelligem Code); ein Tipp auf der Webseite löst am Mac per CGEvent ein Tastenkürzel im aktiven
+Programm aus. Sets, Buttons, Ordner und Kürzel werden nur in der Mac-App bearbeitet. Sprache in UI und Kommentaren: Deutsch.
+
+Es gibt **keine iOS-App und keine USB-Verbindung mehr** (bewusst entfernt, Bluetooth oder eine App kommen eventuell später).
 
 ## Stand
 
-Die USB-Variante wurde vom Nutzer gebaut und getestet (funktioniert). Die Web-Variante (`Web*.swift`, `LocalNetwork.swift`,
-`QRCode.swift`) wurde ohne Xcode geschrieben, ihr Test F ist noch nicht bestätigt. Neu und **noch nicht kompiliert** (ohne Xcode geschrieben, nur auf Syntax geprüft):
-die Mac-App mit Sets (`Shared/Models.swift`, `Shared/PadLayout.swift`, `MacHelper/SetStore.swift`, `DefaultSets.swift`,
-`EditorView.swift` (Ordnerseiten), `EditorSheets.swift`, `ShortcutRecorder.swift`, `PadViews.swift`, `EditorComponents.swift`, `MenuBarView.swift`
-sowie Änderungen in `HelperController`, `WebAPI`, `ShortcutPadHelperApp`). Erste Aufgabe dort: bauen und Fehler beheben,
-ohne die Architektur zu ändern. Design-Vorlage: `design/canvas/` und `docs/Designentscheidungen.md`.
+Neu und **noch nicht kompiliert** (ohne Xcode geschrieben, nur auf Syntax geprüft): die Mac-App mit Sets, Ordnern und
+Menüleiste (`Shared/Models.swift`, `Shared/PadLayout.swift`, `MacHelper/SetStore.swift`, `DefaultSets.swift`, `EditorView.swift`,
+`EditorSheets.swift`, `ShortcutRecorder.swift`, `PadViews.swift`, `EditorComponents.swift`, `MenuBarView.swift` sowie Änderungen
+in `HelperController`, `WebAPI`, `ShortcutPadHelperApp`). Der Nutzer hat eine frühere Fassung gebaut und gestartet; nach dem
+Entfernen von USB und iOS-App ist noch nicht neu gebaut worden. Design-Vorlage: `design/canvas/`, Beschlüsse in
+`docs/Designentscheidungen.md`.
 
-Noch offen: iOS-App und Webseite zeigen die Sets an (Daten liefert `GET /api/library`; für USB fehlt noch eine Nachricht
-in `PadMessage`, die die iOS-App mitbehandeln muss).
+**Nächster Schritt:** Die Webseite (`MacHelper/WebAssets.swift`) zeigt noch den alten Ein-Button-Test. Sie soll die Sets laden
+(`GET /api/library`), das aktive Set zeigen, Ordnerseiten mit der „<“-Kachel kennen und beim Antippen `POST /api/trigger` senden.
 
 ## Projekt erzeugen und bauen
 
@@ -22,35 +24,33 @@ in `PadMessage`, die die iOS-App mitbehandeln muss).
 # Team-ID ist optional: setup.sh liest sie aus dem Zertifikat oder weist darauf hin (Personal Team, kostenlose Apple-ID)
 xcodegen generate
 xcodebuild -project ShortcutPad.xcodeproj -scheme ShortcutPadHelper -destination 'platform=macOS' build
-xcodebuild -project ShortcutPad.xcodeproj -scheme ShortcutPad -destination 'generic/platform=iOS' build
 ```
 
 Zum reinen Kompilieren ohne Signing: `CODE_SIGNING_ALLOWED=NO` an `xcodebuild` anhängen.
 
 ## Regeln
 
-* Swift-Sprachmodus bleibt 5 (`SWIFT_VERSION: "5.0"` in `project.yml`); Mindestversionen iOS 16 / macOS 13.
+* Swift-Sprachmodus bleibt 5 (`SWIFT_VERSION: "5.0"` in `project.yml`); Mindestversion macOS 13.
   Keine APIs verwenden, die neuer sind (kein `@Observable`, kein `onChange(of:initial:)` usw.).
-* `Shared/` wird von beiden Targets kompiliert: dort nur Foundation/Darwin, kein UIKit/AppKit/SwiftUI.
-* Der Mac-Helper läuft ohne App-Sandbox (usbmuxd-Socket, Tastendrücke). Nicht wieder einschalten.
-* Der iOS-Listener bindet bewusst nur `127.0.0.1`; nicht auf alle Interfaces ändern.
+* `Shared/`: dort nur Foundation/Darwin, kein AppKit/SwiftUI (der Code soll später wieder von anderen Clients nutzbar sein).
+* Die Mac-App läuft ohne App-Sandbox (Tastendrücke an andere Programme). Nicht wieder einschalten.
 * Der Webserver im Helper (`WebServer.swift`, Port 8765) bindet bewusst auf alle Interfaces, ist aber standardmäßig aus
   und nur mit Kopplungscode/Token nutzbar (`WebAPI.swift`). Die Seite steckt als Raw-String in `WebAssets.swift`
   (`#"""…"""#`, damit JavaScript-Backslashes unverändert bleiben). Das JS nutzt bewusst kein Framework und nur ältere Syntax.
-* USB und Web teilen sich `HelperController.executeShortcut(_:source:)`; neue Wege dort anschließen, nicht dort vorbei.
+* Jeder Tastendruck läuft über `HelperController.executeShortcut(_:source:)`; neue Wege dort anschließen, nicht daran vorbei.
 * TIS-/UCKeyTranslate-Aufrufe (`KeyMap`) gehören auf den Main-Thread.
-* Sets, Buttons und Kürzel werden nur in der Mac-App bearbeitet (`SetStore`, Main-Thread). iOS-App und Webseite zeigen nur an.
+* Sets, Buttons und Kürzel werden nur in der Mac-App bearbeitet (`SetStore`, Main-Thread). Die Webseite zeigt nur an.
   Gespeichert wird in `~/Library/Application Support/ShortcutPad/sets.json`; Export/Import als `.shortcutpad` (JSON, `PadFile`).
 * Ein Set hat `items` (Buttons und Ordner gemischt, `PadItem`); Ordner (`PadFolder`) liegen nur auf der Hauptebene.
   Dateiformat 2; Format 1 (flache Liste `buttons`) wird beim Lesen übernommen (`PadSet.init(from:)`). Beim Ziehen entscheidet
   `PadPreview`, ob umsortiert (gleiche Ebene) oder in einen Ordner abgelegt wird; die „<“-Kachel (`BackTileView`) steht in Ordnerseiten
-  an erster Stelle und ist Ablageziel für die Hauptebene. Geräte-Apps müssen dieselbe Kachel zeigen.
+  an erster Stelle und ist Ablageziel für die Hauptebene. Die Webseite muss dieselbe Kachel zeigen.
 * Das Fenster „Verbindung und Kopplung“ wird am Titel erkannt (`HelperController`, Selbsttest). Titel nicht ohne Anpassung ändern.
 * `project.yml` ist die Quelle der Wahrheit; das `.xcodeproj` ist generiert und nicht eingecheckt.
 
-## Paketformat
+## Schnittstelle
 
-* iOS ⇄ Mac: 4 Byte Länge (Big-Endian) + JSON (`PadMessage`), siehe `Shared/FrameSocket.swift`.
-* Browser ⇄ Mac: HTTP/1.1, JSON. `GET /`, `POST /api/pair {pin}`, `GET /api/status`, `GET /api/library` (Sets plus aktives Set), `POST /api/trigger {shortcut}`;
-  Token im Header `X-Pad-Token`. Das `Shortcut`-JSON ist dasselbe wie in `Shared/Protocol.swift` (`modifiers` als String-Array).
-* Mac ⇄ usbmuxd: 16-Byte-Header (Länge, Version 1, Typ 8, Tag; Little-Endian) + XML-Plist, siehe `MacHelper/USBMux.swift`.
+* Browser ⇄ Mac: HTTP/1.1, JSON, eine Anfrage pro Verbindung. `GET /`, `POST /api/pair {pin}`, `GET /api/status`,
+  `GET /api/library` (Sets plus aktives Set, `PadLibraryPayload`), `POST /api/trigger {shortcut}`; Token im Header `X-Pad-Token`.
+  Das `Shortcut`-JSON steht in `Shared/Protocol.swift` (`modifiers` als String-Array).
+* Die Webseite fragt `GET /api/status` alle 1,5 s; daran erkennt die Mac-App, dass ein Gerät verbunden ist (`webClientActive`).

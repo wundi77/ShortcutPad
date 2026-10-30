@@ -2,7 +2,6 @@ name: ShortcutPad
 
 options:
   deploymentTarget:
-    iOS: "16.0"
     macOS: "13.0"
   createIntermediateGroups: true
   developmentLanguage: de
@@ -20,25 +19,6 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
 
 targets:
-  ShortcutPad:
-    type: application
-    platform: iOS
-    sources:
-      - iOSApp
-      - Shared
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: "$(PAD_BUNDLE_PREFIX).ios"
-        PRODUCT_NAME: ShortcutPad
-        TARGETED_DEVICE_FAMILY: "1,2"
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: ShortcutPad
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-
   ShortcutPadHelper:
     type: application
     platform: macOS
@@ -53,6 +33,6 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: "ShortcutPad Helper"
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
         COMBINE_HIDPI_IMAGES: YES
-        # Ohne Sandbox: nötig für den usbmuxd-Socket und das Senden von Tastendrücken
+        # Ohne Sandbox: nötig für das Senden von Tastendrücken an andere Programme
         ENABLE_APP_SANDBOX: NO
         ENABLE_HARDENED_RUNTIME: NO

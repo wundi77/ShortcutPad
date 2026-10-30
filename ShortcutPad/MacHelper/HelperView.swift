@@ -15,12 +15,11 @@ struct HelperView: View {
             Text("ShortcutPad Helper")
                 .font(.title2.weight(.bold))
 
-            GroupBox(label: Text("Verbindung")) {
+            GroupBox(label: Text("Status")) {
                 VStack(alignment: .leading, spacing: 6) {
-                    row("USB-Geräte", controller.attachedDevices.isEmpty
-                        ? "keins erkannt"
-                        : "\(controller.attachedDevices.count) angeschlossen")
-                    row("iOS-App", controller.linkedDeviceName.map { "verbunden: \($0)" } ?? "nicht verbunden")
+                    row("Webseite", controller.webRunning ? "wird angeboten" : "aus")
+                    row("Gekoppelte Geräte", "\(controller.webPairedCount)")
+                    row("Seite verbunden", controller.webClientActive ? "ja" : "nein")
                     row("Aktives Programm", controller.frontmostApp)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -47,7 +46,7 @@ struct HelperView: View {
                 .padding(4)
             }
 
-            GroupBox(label: Text("Letzter Befehl vom iPhone/iPad")) {
+            GroupBox(label: Text("Letzter Befehl von der Webseite")) {
                 Text(controller.lastTrigger)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(4)
@@ -57,7 +56,7 @@ struct HelperView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     row("Letzte Taste hier", controller.lastLocalKey)
                     Toggle("Tasten in diesem Fenster abfangen (kein Piepton, ⌘Q etc. gesperrt)", isOn: $controller.captureLocalKeys)
-                    Text("So testest du: dieses Fenster anklicken, dann am iPhone/iPad den Button tippen – das Kürzel erscheint oben. Für den echten Test stattdessen in ein anderes Programm klicken (z. B. TextEdit).")
+                    Text("So testest du: dieses Fenster anklicken, dann auf der Webseite einen Button tippen – das Kürzel erscheint oben. Für den echten Test stattdessen in ein anderes Programm klicken (z. B. TextEdit).")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -79,7 +78,7 @@ struct HelperView: View {
     }
 
     private var webBox: some View {
-        GroupBox(label: Text("Webseite für iPad/iPhone (gleiches WLAN/LAN)")) {
+        GroupBox(label: Text("Webseite für iPad und iPhone (gleiches WLAN/LAN)")) {
             VStack(alignment: .leading, spacing: 8) {
                 Toggle("Webseite im lokalen Netzwerk anbieten", isOn: $controller.webEnabled)
 

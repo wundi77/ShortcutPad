@@ -4,8 +4,6 @@ import SwiftUI
 
 final class HelperController: ObservableObject {
     @Published private(set) var accessibilityGranted = false
-    @Published private(set) var attachedDevices: [Int: String] = [:]
-    @Published private(set) var linkedDeviceName: String?
     @Published private(set) var frontmostApp = "–"
     /// Set, das gerade ans Pad ausgeliefert wird (automatisch nach vorderstem Programm oder fixiert).
     @Published private(set) var activeSetID: UUID?
@@ -31,12 +29,9 @@ final class HelperController: ObservableObject {
     @Published private(set) var webAddresses: [String] = []
     @Published private(set) var webPIN = ""
     @Published private(set) var webPairedCount = 0
+    /// true, solange mindestens eine gekoppelte Webseite in den letzten Sekunden beim Mac nachgefragt hat.
+    @Published private(set) var webClientActive = false
 
-    private let stateLock = NSLock()
-    private var attachedIDs = Set<Int>()
-    private var sockets = [Int: FrameSocket]()
-    private let sendQueue = DispatchQueue(label: "shortcutpad.send")
-    private let watcher = USBMuxWatcher()
     private var macName = "Mac"
 
     private static let webEnabledKey = "web.enabled"
@@ -58,7 +53,6 @@ final class HelperController: ObservableObject {
         refreshAccessibility(prompt: true)
         installObservers()
         installKeyMonitor()
-        startWatcher()
         setupWeb()
         observeStore()
     }
@@ -106,7 +100,7 @@ final class HelperController: ObservableObject {
         }
     }
 
-    /// Alle Sets plus aktives Set für iPad, iPhone und Webseite. Darf von beliebigen Threads aufgerufen werden.
+    /// Alle Sets plus aktives Set für die Webseite. Darf von beliebigen Threads aufgerufen werden.
     func libraryPayload() -> PadLibraryPayload {
         onMainSync {
             PadLibraryPayload(
@@ -153,7 +147,6 @@ final class HelperController: ObservableObject {
         }
         if trusted != accessibilityGranted {
             accessibilityGranted = trusted
-            pushStatus()
         }
     }
 
@@ -171,12 +164,12 @@ final class HelperController: ObservableObject {
                 self?.lastExternalBundleID = id
                 self?.updateActiveSet()
             }
-            self?.pushStatus()
         }
 
         Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             self?.refreshAccessibility(prompt: false)
             self?.refreshWebAddresses()
+            self?.updateWebClientActivity()
         }
     }
 
@@ -202,119 +195,7 @@ final class HelperController: ObservableObject {
         return "\(text)\(characters)   (Tastencode \(event.keyCode))"
     }
 
-    // MARK: USB
-
-    private func startWatcher() {
-        watcher.onLog = { [weak self] text in self?.addLog(text) }
-        watcher.onAttach = { [weak self] device in self?.deviceAttached(device) }
-        watcher.onDetach = { [weak self] id in self?.deviceDetached(id) }
-        watcher.onReset = { [weak self] in self?.devicesReset() }
-        watcher.start()
-    }
-
-    private func isAttached(_ id: Int) -> Bool {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        return attachedIDs.contains(id)
-    }
-
-    private func deviceAttached(_ device: USBMuxDevice) {
-        stateLock.lock()
-        let isNew = attachedIDs.insert(device.id).inserted
-        stateLock.unlock()
-        guard isNew else { return }
-
-        DispatchQueue.main.async { self.attachedDevices[device.id] = device.serial }
-        addLog("USB-Gerät erkannt (ID \(device.id))")
-
-        let thread = Thread { [weak self] in
-            self?.linkLoop(deviceID: device.id)
-        }
-        thread.name = "link-\(device.id)"
-        thread.start()
-    }
-
-    private func deviceDetached(_ id: Int) {
-        stateLock.lock()
-        attachedIDs.remove(id)
-        let socket = sockets[id]
-        stateLock.unlock()
-        socket?.shutdownConnection()
-        DispatchQueue.main.async {
-            self.attachedDevices[id] = nil
-            if self.attachedDevices.isEmpty { self.linkedDeviceName = nil }
-        }
-    }
-
-    private func devicesReset() {
-        stateLock.lock()
-        let ids = Array(attachedIDs)
-        stateLock.unlock()
-        for id in ids { deviceDetached(id) }
-    }
-
-    /// Hält die Verbindung zur iOS-App eines Geräts aufrecht: verbinden, zuhören, bei Abbruch neu versuchen.
-    private func linkLoop(deviceID: Int) {
-        var lastNote = ""
-        while isAttached(deviceID) {
-            var activeSocket: FrameSocket?
-            do {
-                let fd = try USBMux.openTunnel(deviceID: deviceID, port: PadProtocol.port)
-                let socket = FrameSocket(fd: fd)
-                activeSocket = socket
-                stateLock.lock()
-                sockets[deviceID] = socket
-                stateLock.unlock()
-                lastNote = ""
-                addLog("Verbunden mit der iOS-App")
-
-                try socket.send(.hello(HelloInfo(protocolVersion: PadProtocol.version, deviceName: macName)))
-                pushStatus()
-
-                while true {
-                    let message = try socket.receive()
-                    handle(message, from: socket)
-                }
-            } catch {
-                let note = describe(error)
-                if activeSocket != nil {
-                    addLog("Verbindung beendet: \(note)")
-                } else if note != lastNote {
-                    addLog("iOS-App nicht erreichbar: \(note). App öffnen und Gerät entsperren.")
-                    lastNote = note
-                }
-            }
-
-            stateLock.lock()
-            sockets[deviceID] = nil
-            stateLock.unlock()
-            DispatchQueue.main.async { self.linkedDeviceName = nil }
-
-            Thread.sleep(forTimeInterval: 1.5)
-        }
-        addLog("USB-Gerät getrennt (ID \(deviceID))")
-    }
-
-    // MARK: Nachrichten
-
-    private func handle(_ message: PadMessage, from socket: FrameSocket) {
-        switch message {
-        case .hello(let info):
-            addLog("iOS-App meldet sich: \(info.deviceName)")
-            DispatchQueue.main.async { self.linkedDeviceName = info.deviceName }
-        case .trigger(let request):
-            perform(request, via: socket)
-        case .status, .result:
-            break
-        }
-    }
-
-    private func perform(_ request: TriggerRequest, via socket: FrameSocket) {
-        let outcome = executeShortcut(request.shortcut, source: "USB")
-        _ = try? socket.send(.result(TriggerResult(id: request.id, ok: outcome.ok, message: outcome.message)))
-    }
-
-    /// Gemeinsamer Weg für USB und Web: Kürzel prüfen, in Tastencode übersetzen und an das aktive Programm senden.
+    /// Einziger Weg zum Tastendruck: Kürzel prüfen, in Tastencode übersetzen und an das aktive Programm senden.
     /// Darf von beliebigen Threads aufgerufen werden.
     private func executeShortcut(_ shortcut: Shortcut, source: String) -> ShortcutOutcome {
         var ok = false
@@ -406,6 +287,13 @@ final class HelperController: ObservableObject {
         }
     }
 
+    private func updateWebClientActivity() {
+        let active = webEnabled && webAPI.clientSeenRecently
+        if active != webClientActive {
+            webClientActive = active
+        }
+    }
+
     private func refreshWebAddresses(force: Bool = false) {
         guard webEnabled || force else { return }
         let addresses = LocalNetwork.ipv4Addresses()
@@ -428,24 +316,6 @@ final class HelperController: ObservableObject {
 
     func webURL(for ip: String) -> String {
         "http://\(ip):\(WebServer.defaultPort)/"
-    }
-
-    private func pushStatus() {
-        DispatchQueue.main.async {
-            let status = MacStatus(
-                macName: self.macName,
-                accessibilityGranted: self.accessibilityGranted,
-                frontmostApp: self.frontmostApp
-            )
-            self.stateLock.lock()
-            let targets = Array(self.sockets.values)
-            self.stateLock.unlock()
-            self.sendQueue.async {
-                for socket in targets {
-                    _ = try? socket.send(.status(status))
-                }
-            }
-        }
     }
 
     // MARK: Hilfen

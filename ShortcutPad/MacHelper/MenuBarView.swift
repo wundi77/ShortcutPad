@@ -51,14 +51,14 @@ struct MenuBarView: View {
     private var statusBlock: some View {
         VStack(alignment: .leading, spacing: 7) {
             statusLine(
-                ok: controller.linkedDeviceName != nil,
-                text: controller.linkedDeviceName.map { "\($0) · USB verbunden" } ?? "Kein Gerät per USB verbunden"
-            )
-            statusLine(
                 ok: controller.webRunning,
                 text: controller.webRunning
                     ? "Webseite aktiv · \(controller.webPairedCount) Gerät(e) gekoppelt"
                     : "Webseite aus"
+            )
+            statusLine(
+                ok: controller.webClientActive,
+                text: controller.webClientActive ? "Gerät verbunden" : "Kein Gerät verbunden"
             )
             statusLine(
                 ok: controller.accessibilityGranted,

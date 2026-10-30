@@ -1,6 +1,6 @@
 import Foundation
 
-/// Gerätegrößen und Rasterregeln für das Pad. Mac-Vorschau, iOS-App und Webseite rechnen damit gleich.
+/// Gerätegrößen und Rasterregeln für das Pad. Mac-Vorschau und Webseite rechnen damit gleich.
 enum PadDevice: String, CaseIterable, Identifiable {
     case phonePortrait, phoneLandscape, tabletLandscape, tabletPortrait
 

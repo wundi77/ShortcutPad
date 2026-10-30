@@ -1,15 +1,5 @@
 import Foundation
 
-// MARK: - Konstanten
-
-enum PadProtocol {
-    static let version = 1
-
-    /// Auf diesem TCP-Port lauscht die iOS-App – ausschließlich auf 127.0.0.1.
-    /// Der Mac erreicht ihn über das USB-Kabel (usbmuxd), nicht über WLAN.
-    static let port: UInt16 = 49737
-}
-
 // MARK: - Tastenkürzel
 
 enum KeyModifier: String, Codable, CaseIterable, Hashable, Identifiable {
@@ -115,33 +105,11 @@ struct Shortcut: Codable, Equatable {
     }
 }
 
-// MARK: - Nachrichten (iOS ⇄ Mac)
+// MARK: - Status
 
-struct HelloInfo: Codable {
-    var protocolVersion: Int
-    var deviceName: String
-}
-
+/// Was die Webseite über den Mac erfährt (`GET /api/status`).
 struct MacStatus: Codable {
     var macName: String
     var accessibilityGranted: Bool
     var frontmostApp: String
-}
-
-struct TriggerRequest: Codable {
-    var id: UUID
-    var shortcut: Shortcut
-}
-
-struct TriggerResult: Codable {
-    var id: UUID
-    var ok: Bool
-    var message: String
-}
-
-enum PadMessage: Codable {
-    case hello(HelloInfo)
-    case status(MacStatus)
-    case trigger(TriggerRequest)
-    case result(TriggerResult)
 }
