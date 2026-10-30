@@ -34,6 +34,11 @@ Auf dem iPad läuft nur Safari: keine App, kein Kabel, kein Entwicklerkonto auf 
 
 ## Teil 3 – Mac-App starten
 
+ShortcutPad ist eine **Menüleisten-App**: Sie hat kein Dock-Symbol und läuft im Hintergrund, bis du sie beendest. Du findest sie als Raster-Symbol
+oben rechts in der Menüleiste. Dort öffnest du den **Editor** und **Verbindung und Kopplung** und beendest die App („ShortcutPad beenden“).
+Beim allerersten Start bleibt der Editor offen, danach startet die App still. Ein Doppelklick auf die App, während sie schon läuft, tut nichts
+Sichtbares: dann einfach das Menüleisten-Symbol benutzen.
+
 **Schnellweg ohne Xcode-Fenster:** Im Finder im Ordner `ShortcutPad/` die Datei **`build.command`** doppelklicken. Sie erzeugt das Projekt,
 baut die Mac-App, startet sie und zeigt bei Fehlern die Meldungen an (liegen dann auch in der Zwischenablage). Beim allerersten Mal
 einmal im Terminal `cd ~/Developer/ShortcutPad/ShortcutPad && chmod +x build.command setup.sh && xattr -dr com.apple.quarantine .`

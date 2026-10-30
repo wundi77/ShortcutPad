@@ -32,6 +32,8 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: "ShortcutPad Helper"
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        # Menüleisten-App: kein Dock-Symbol, läuft im Hintergrund bis „Beenden“
+        INFOPLIST_KEY_LSUIElement: YES
         COMBINE_HIDPI_IMAGES: YES
         # Ohne Sandbox: nötig für das Senden von Tastendrücken an andere Programme
         ENABLE_APP_SANDBOX: NO

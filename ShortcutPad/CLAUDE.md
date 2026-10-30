@@ -49,6 +49,8 @@ Zum reinen Kompilieren ohne Signing: `CODE_SIGNING_ALLOWED=NO` an `xcodebuild` a
   Dateiformat 2; Format 1 (flache Liste `buttons`) wird beim Lesen übernommen (`PadSet.init(from:)`). Beim Ziehen entscheidet
   `PadPreview`, ob umsortiert (gleiche Ebene) oder in einen Ordner abgelegt wird; die „<“-Kachel (`BackTileView`) steht in Ordnerseiten
   an erster Stelle und ist Ablageziel für die Hauptebene. Die Webseite muss dieselbe Kachel zeigen.
+* Die App ist eine Menüleisten-App (`INFOPLIST_KEY_LSUIElement` in `project.yml`, kein Dock-Symbol). `AppDelegate` schließt die Fenster beim Start
+  (außer beim allerersten Start); geöffnet wird über das Menüleisten-Symbol. Beenden nur über „ShortcutPad beenden“ dort.
 * Das Fenster „Verbindung und Kopplung“ wird am Titel erkannt (`HelperController`, Selbsttest). Titel nicht ohne Anpassung ändern.
 * `project.yml` ist die Quelle der Wahrheit; das `.xcodeproj` ist generiert und nicht eingecheckt.
 

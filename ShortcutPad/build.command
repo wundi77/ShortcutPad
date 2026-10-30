@@ -132,6 +132,8 @@ if [ "$START" = "1" ]; then
   echo
   echo "→ App starten …"
   open "$APP"
+  echo "  ShortcutPad hat kein Dock-Symbol. Du findest es in der Menüleiste oben rechts (Raster-Symbol);"
+  echo "  dort öffnest du den Editor und beendest die App."
 else
   open -R "$APP"
 fi

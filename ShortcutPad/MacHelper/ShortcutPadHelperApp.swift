@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct ShortcutPadHelperApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var controller = HelperController()
     @StateObject private var store = SetStore.shared
 
