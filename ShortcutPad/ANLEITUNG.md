@@ -119,11 +119,15 @@ erscheint ein Symbol. Das Fenster darf geschlossen werden, die App läuft weiter
    Gruppenfarbe mit einer eigenen Farbe überschreiben.
 5. **Set-Einstellungen:** Name, Programm, automatisches Umschalten, Set-Farbe, Stil (Balken, Voll, Betont), Buttongröße und ob
    das Kürzel klein auf dem Button steht.
-6. **Import/Export:** Sets werden als Datei `.shortcutpad` gesichert und auf einem anderen Mac importiert (als neues Set oder
+6. **Ordner:** Auf der Hauptebene stehen Buttons und Ordner gemischt. „Ordner“ im Kopf legt einen neuen an; Doppelklick auf einen Ordner
+   (oder „Ordner öffnen“ rechts) öffnet seine Seite. Dort steht als **erste Kachel ein hellgrauer Button mit „<“**: Ein Klick springt
+   zurück auf die Hauptebene. Buttons lassen sich auf einen Ordner ziehen (legt sie dort ab) und in der Ordnerseite auf die „<“-Kachel
+   (legt sie auf die Hauptebene). Ohne Ziehen: im Feld „Ablegen in“ rechts. Ordner gibt es nur eine Ebene tief.
+7. **Import/Export:** Sets werden als Datei `.shortcutpad` gesichert und auf einem anderen Mac importiert (als neues Set oder
    ein gleichnamiges Set ersetzen).
-7. **Menüleiste:** zeigt den Status, das vorderste Programm und das aktive Set. „Fixieren“ hält das Set fest, auch wenn das
+8. **Menüleiste:** zeigt den Status, das vorderste Programm und das aktive Set. „Fixieren“ hält das Set fest, auch wenn das
    Programm wechselt. Ein Klick auf ein Set fixiert es ebenfalls; „Wieder automatisch wählen“ hebt das auf.
-8. **Verbindung und Kopplung** (Menüleiste oder Chip oben rechts im Editor): USB, Webseite, Kopplungscode, Berechtigung, Protokoll.
+9. **Verbindung und Kopplung** (Menüleiste oder Chip oben rechts im Editor): USB, Webseite, Kopplungscode, Berechtigung, Protokoll.
 
 Die Sets liegen in `~/Library/Application Support/ShortcutPad/sets.json`. iPad, iPhone und Webseite zeigen die Sets in
 einem späteren Schritt an; die Webseite kann sie schon über `GET /api/library` abrufen (mit Token).
@@ -139,6 +143,11 @@ einem späteren Schritt an; die Webseite kann sie schon über `GET /api/library`
 | K – Neuanordnen | Button in der Vorschau auf einen anderen ziehen | Reihenfolge ändert sich |
 | L – Export/Import | Set exportieren, in „Import“ als neues Set laden | Set erscheint mit „(Import)“ im Namen |
 | M – Neustart | App beenden und neu starten | Sets sind unverändert |
+| N – Ordner | „Ordner“ anklicken, benennen, per Doppelklick öffnen | Ordnerseite mit hellgrauer „<“-Kachel an erster Stelle |
+| O – Zurück | Auf die „<“-Kachel klicken | Hauptebene, der Ordner ist ausgewählt |
+| P – Hinein ziehen | Einen Button auf eine Ordner-Kachel ziehen und loslassen | Ordner zeigt eine Zahl mehr, Button ist von der Hauptebene verschwunden |
+| Q – Heraus ziehen | In einem Ordner einen Button auf „<“ ziehen und loslassen | Button steht auf der Hauptebene hinter dem Ordner |
+| R – Alte Datei | Eine alte `sets.json` (Format 1, nur Buttons) laden | Alle Buttons stehen auf der Hauptebene |
 
 ## Wenn etwas nicht klappt
 

@@ -162,19 +162,65 @@ final class SetStore: ObservableObject {
         return sets.first { $0.appBundleID == nil }
     }
 
-    // MARK: Buttons
+    // MARK: Buttons und Ordner
 
+    /// Wo ein Eintrag liegt: auf der Hauptebene (Index) oder in einem Ordner (Ordner-Index, Button-Index).
+    private enum Place {
+        case top(Int)
+        case folder(Int, Int)
+    }
+
+    private func place(of id: UUID, in set: PadSet) -> Place? {
+        for (index, item) in set.items.enumerated() {
+            if item.id == id { return .top(index) }
+            if case .folder(let folder) = item,
+               let inner = folder.buttons.firstIndex(where: { $0.id == id }) {
+                return .folder(index, inner)
+            }
+        }
+        return nil
+    }
+
+    /// Entfernt einen Button von seinem Platz (Hauptebene oder Ordner) und gibt ihn zurück.
+    private func removeButton(_ id: UUID, from set: inout PadSet) -> PadButton? {
+        guard let found = place(of: id, in: set) else { return nil }
+        switch found {
+        case .top(let index):
+            if case .button(let button) = set.items[index] {
+                set.items.remove(at: index)
+                return button
+            }
+            return nil
+        case .folder(let folderIndex, let inner):
+            if case .folder(var folder) = set.items[folderIndex] {
+                let button = folder.buttons.remove(at: inner)
+                set.items[folderIndex] = PadItem.folder(folder)
+                return button
+            }
+            return nil
+        }
+    }
+
+    /// Legt einen neuen Button an: auf der Hauptebene oder, wenn `folderID` gesetzt ist, in diesem Ordner.
     @discardableResult
-    func addButton(to setID: UUID) -> UUID? {
+    func addButton(to setID: UUID, in folderID: UUID? = nil) -> UUID? {
         var newID: UUID?
         mutate(setID) { set in
-            guard set.buttons.count < PadLimits.maxButtonsPerSet else { return }
+            guard set.buttonCount < PadLimits.maxButtonsPerSet else { return }
             let button = PadButton(
                 label: "Neuer Button",
                 shortcut: Shortcut(key: "n", modifiers: [.command]),
                 groupID: set.groups.first?.id
             )
-            set.buttons.append(button)
+            if let folderID = folderID {
+                guard let index = set.items.firstIndex(where: { $0.id == folderID }),
+                      case .folder(var folder) = set.items[index] else { return }
+                folder.buttons.append(button)
+                set.items[index] = PadItem.folder(folder)
+            } else {
+                guard set.items.count < PadLimits.maxItemsPerSet else { return }
+                set.items.append(PadItem.button(button))
+            }
             newID = button.id
         }
         return newID
@@ -182,7 +228,7 @@ final class SetStore: ObservableObject {
 
     func deleteButton(_ buttonID: UUID, in setID: UUID) {
         mutate(setID) { set in
-            set.buttons.removeAll { $0.id == buttonID }
+            _ = removeButton(buttonID, from: &set)
         }
     }
 
@@ -190,48 +236,175 @@ final class SetStore: ObservableObject {
     func duplicateButton(_ buttonID: UUID, in setID: UUID) -> UUID? {
         var newID: UUID?
         mutate(setID) { set in
-            guard set.buttons.count < PadLimits.maxButtonsPerSet,
-                  let index = set.buttons.firstIndex(where: { $0.id == buttonID }) else { return }
-            var copy = set.buttons[index]
-            copy.id = UUID()
-            set.buttons.insert(copy, at: index + 1)
-            newID = copy.id
+            guard set.buttonCount < PadLimits.maxButtonsPerSet, let found = place(of: buttonID, in: set) else { return }
+            switch found {
+            case .top(let index):
+                guard set.items.count < PadLimits.maxItemsPerSet,
+                      case .button(var copy) = set.items[index] else { return }
+                copy.id = UUID()
+                set.items.insert(PadItem.button(copy), at: index + 1)
+                newID = copy.id
+            case .folder(let folderIndex, let inner):
+                guard case .folder(var folder) = set.items[folderIndex] else { return }
+                var copy = folder.buttons[inner]
+                copy.id = UUID()
+                folder.buttons.insert(copy, at: inner + 1)
+                set.items[folderIndex] = PadItem.folder(folder)
+                newID = copy.id
+            }
         }
         return newID
     }
 
+    /// Ändert einen Button, egal ob auf der Hauptebene oder in einem Ordner.
     func updateButton(_ buttonID: UUID, in setID: UUID, _ change: (inout PadButton) -> Void) {
         mutate(setID) { set in
-            guard let index = set.buttons.firstIndex(where: { $0.id == buttonID }) else { return }
-            change(&set.buttons[index])
+            guard let found = place(of: buttonID, in: set) else { return }
+            switch found {
+            case .top(let index):
+                if case .button(var button) = set.items[index] {
+                    change(&button)
+                    set.items[index] = PadItem.button(button)
+                }
+            case .folder(let folderIndex, let inner):
+                if case .folder(var folder) = set.items[folderIndex] {
+                    change(&folder.buttons[inner])
+                    set.items[folderIndex] = PadItem.folder(folder)
+                }
+            }
         }
     }
 
-    /// Zieht einen Button an die Stelle eines anderen (Neuanordnen per Ziehen in der Vorschau).
-    func moveButton(_ draggedID: UUID, onto targetID: UUID, in setID: UUID) {
+    /// Ordnet um (Ziehen in der Vorschau): Der gezogene Eintrag nimmt den Platz des Ziels ein.
+    /// Gilt nur innerhalb einer Ebene, also auf der Hauptebene oder im selben Ordner.
+    func reorder(_ draggedID: UUID, onto targetID: UUID, in setID: UUID) {
         guard draggedID != targetID else { return }
         mutate(setID) { set in
-            guard let from = set.buttons.firstIndex(where: { $0.id == draggedID }),
-                  let to = set.buttons.firstIndex(where: { $0.id == targetID }) else { return }
-            let item = set.buttons.remove(at: from)
-            set.buttons.insert(item, at: to)
+            guard let from = place(of: draggedID, in: set), let to = place(of: targetID, in: set) else { return }
+            switch (from, to) {
+            case (.top(let a), .top(let b)):
+                let item = set.items.remove(at: a)
+                set.items.insert(item, at: b)
+            case (.folder(let folderA, let a), .folder(let folderB, let b)):
+                guard folderA == folderB, case .folder(var folder) = set.items[folderA] else { return }
+                let item = folder.buttons.remove(at: a)
+                folder.buttons.insert(item, at: b)
+                set.items[folderA] = PadItem.folder(folder)
+            default:
+                return
+            }
         }
     }
 
-    /// Ordnet die Buttons nach der Reihenfolge der Gruppen. Innerhalb einer Gruppe bleibt die Reihenfolge.
-    func sortByGroup(in setID: UUID) {
+    /// Verschiebt einen Button in einen Ordner oder (bei `folderID == nil`) auf die Hauptebene.
+    /// Auf der Hauptebene landet er direkt hinter dem Ordner, aus dem er kommt.
+    func moveButton(_ buttonID: UUID, to folderID: UUID?, in setID: UUID) {
+        mutate(setID) { set in
+            guard let origin = place(of: buttonID, in: set) else { return }
+            if let target = folderID {
+                guard set.folder(withID: target) != nil else { return }
+                if case .folder(let current, _) = origin, set.items[current].id == target { return }
+                guard let button = removeButton(buttonID, from: &set) else { return }
+                guard let index = set.items.firstIndex(where: { $0.id == target }),
+                      case .folder(var folder) = set.items[index] else { return }
+                folder.buttons.append(button)
+                set.items[index] = PadItem.folder(folder)
+            } else {
+                guard case .folder(let current, _) = origin else { return }
+                let folderItemID = set.items[current].id
+                guard set.items.count < PadLimits.maxItemsPerSet,
+                      let button = removeButton(buttonID, from: &set) else { return }
+                let after = (set.items.firstIndex(where: { $0.id == folderItemID }) ?? (set.items.count - 1)) + 1
+                set.items.insert(PadItem.button(button), at: min(after, set.items.count))
+            }
+        }
+    }
+
+    /// Ordnet die Buttons einer Ebene nach der Reihenfolge der Gruppen. Auf der Hauptebene bleiben Ordner an ihrem Platz.
+    func sortByGroup(in setID: UUID, folderID: UUID? = nil) {
         mutate(setID) { set in
             let order = set.groups.map { $0.id }
             func rank(_ button: PadButton) -> Int {
                 if let gid = button.groupID, let index = order.firstIndex(of: gid) { return index }
                 return order.count
             }
-            let sorted = set.buttons.enumerated().sorted { left, right in
-                let a = rank(left.element)
-                let b = rank(right.element)
-                return a != b ? a < b : left.offset < right.offset
+            func sortedButtons(_ buttons: [PadButton]) -> [PadButton] {
+                let sorted = buttons.enumerated().sorted { left, right in
+                    let a = rank(left.element)
+                    let b = rank(right.element)
+                    return a != b ? a < b : left.offset < right.offset
+                }
+                return sorted.map { $0.element }
             }
-            set.buttons = sorted.map { $0.element }
+
+            if let folderID = folderID {
+                guard let index = set.items.firstIndex(where: { $0.id == folderID }),
+                      case .folder(var folder) = set.items[index] else { return }
+                folder.buttons = sortedButtons(folder.buttons)
+                set.items[index] = PadItem.folder(folder)
+            } else {
+                var slots = [Int]()
+                var singles = [PadButton]()
+                for (index, item) in set.items.enumerated() {
+                    if case .button(let button) = item {
+                        slots.append(index)
+                        singles.append(button)
+                    }
+                }
+                let ordered = sortedButtons(singles)
+                for (n, index) in slots.enumerated() {
+                    set.items[index] = PadItem.button(ordered[n])
+                }
+            }
+        }
+    }
+
+    // MARK: Ordner
+
+    @discardableResult
+    func addFolder(to setID: UUID) -> UUID? {
+        var newID: UUID?
+        mutate(setID) { set in
+            guard set.folders.count < PadLimits.maxFoldersPerSet,
+                  set.items.count < PadLimits.maxItemsPerSet else { return }
+            let used = Set(set.folders.map { $0.color })
+            let color = PadColor.allCases.first { !used.contains($0) } ?? set.color
+            let name = uniqueName("Neuer Ordner", existing: set.folders.map { $0.name })
+            let folder = PadFolder(name: name, color: color)
+            set.items.append(PadItem.folder(folder))
+            newID = folder.id
+        }
+        return newID
+    }
+
+    func updateFolder(_ folderID: UUID, in setID: UUID, _ change: (inout PadFolder) -> Void) {
+        mutate(setID) { set in
+            guard let index = set.items.firstIndex(where: { $0.id == folderID }),
+                  case .folder(var folder) = set.items[index] else { return }
+            change(&folder)
+            set.items[index] = PadItem.folder(folder)
+        }
+    }
+
+    /// Löscht den Ordner samt seinen Buttons.
+    func deleteFolder(_ folderID: UUID, in setID: UUID) {
+        mutate(setID) { set in
+            set.items.removeAll { item in
+                if case .folder(let folder) = item { return folder.id == folderID }
+                return false
+            }
+        }
+    }
+
+    /// Löst den Ordner auf: Seine Buttons stehen danach an seiner Stelle auf der Hauptebene.
+    func dissolveFolder(_ folderID: UUID, in setID: UUID) {
+        mutate(setID) { set in
+            guard let index = set.items.firstIndex(where: { $0.id == folderID }),
+                  case .folder(let folder) = set.items[index] else { return }
+            let free = PadLimits.maxItemsPerSet - (set.items.count - 1)
+            guard folder.buttons.count <= free else { return }
+            let released = folder.buttons.map { PadItem.button($0) }
+            set.items.replaceSubrange(index...index, with: released)
         }
     }
 
@@ -262,8 +435,19 @@ final class SetStore: ObservableObject {
     func deleteGroup(_ groupID: UUID, in setID: UUID) {
         mutate(setID) { set in
             set.groups.removeAll { $0.id == groupID }
-            for index in set.buttons.indices where set.buttons[index].groupID == groupID {
-                set.buttons[index].groupID = nil
+            func release(_ button: PadButton) -> PadButton {
+                var b = button
+                if b.groupID == groupID { b.groupID = nil }
+                return b
+            }
+            set.items = set.items.map { item in
+                switch item {
+                case .button(let button):
+                    return PadItem.button(release(button))
+                case .folder(var folder):
+                    folder.buttons = folder.buttons.map { release($0) }
+                    return PadItem.folder(folder)
+                }
             }
         }
     }

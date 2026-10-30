@@ -6,6 +6,8 @@ import Foundation
 enum PadLimits {
     static let maxSets = 100
     static let maxButtonsPerSet = 300
+    static let maxItemsPerSet = 300
+    static let maxFoldersPerSet = 50
     static let maxGroupsPerSet = 30
     static let maxNameLength = 60
     static let maxLabelLength = 40
@@ -144,6 +146,60 @@ struct PadButton: Codable, Identifiable, Equatable {
     }
 }
 
+/// Ein Ordner auf der Hauptebene eines Sets. Ordner liegen nicht in Ordnern (eine Ebene).
+struct PadFolder: Codable, Identifiable, Equatable {
+    var id: UUID
+    var name: String
+    var color: PadColor
+    var buttons: [PadButton]
+
+    init(id: UUID = UUID(), name: String, color: PadColor, buttons: [PadButton] = []) {
+        self.id = id
+        self.name = name
+        self.color = color
+        self.buttons = buttons
+    }
+}
+
+/// Ein Eintrag auf der Hauptebene: Button oder Ordner. Die Reihenfolge im Set ist die Reihenfolge im Raster.
+enum PadItem: Codable, Identifiable, Equatable {
+    case button(PadButton)
+    case folder(PadFolder)
+
+    var id: UUID {
+        switch self {
+        case .button(let button): return button.id
+        case .folder(let folder): return folder.id
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case type, button, folder
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+        if type == "folder" {
+            self = .folder(try container.decode(PadFolder.self, forKey: .folder))
+        } else {
+            self = .button(try container.decode(PadButton.self, forKey: .button))
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .button(let button):
+            try container.encode("button", forKey: .type)
+            try container.encode(button, forKey: .button)
+        case .folder(let folder):
+            try container.encode("folder", forKey: .type)
+            try container.encode(folder, forKey: .folder)
+        }
+    }
+}
+
 struct PadSet: Codable, Identifiable, Equatable {
     var id: UUID
     var name: String
@@ -157,7 +213,8 @@ struct PadSet: Codable, Identifiable, Equatable {
     var size: PadSize
     var showShortcuts: Bool
     var groups: [PadGroup]
-    var buttons: [PadButton]
+    /// Hauptebene: Buttons und Ordner gemischt.
+    var items: [PadItem]
 
     init(
         id: UUID = UUID(),
@@ -170,7 +227,7 @@ struct PadSet: Codable, Identifiable, Equatable {
         size: PadSize = .medium,
         showShortcuts: Bool = true,
         groups: [PadGroup] = [],
-        buttons: [PadButton] = []
+        items: [PadItem] = []
     ) {
         self.id = id
         self.name = name
@@ -182,7 +239,90 @@ struct PadSet: Codable, Identifiable, Equatable {
         self.size = size
         self.showShortcuts = showShortcuts
         self.groups = groups
-        self.buttons = buttons
+        self.items = items
+    }
+
+    // MARK: Lesen und Schreiben (Dateiformat 2; Format 1 hatte eine flache Liste „buttons“)
+
+    private enum CodingKeys: String, CodingKey {
+        case id, name, appBundleID, appName, autoSwitch, color, style, size, showShortcuts, groups, items, buttons
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        appBundleID = try c.decodeIfPresent(String.self, forKey: .appBundleID)
+        appName = try c.decodeIfPresent(String.self, forKey: .appName)
+        autoSwitch = try c.decode(Bool.self, forKey: .autoSwitch)
+        color = try c.decode(PadColor.self, forKey: .color)
+        style = try c.decode(PadStyle.self, forKey: .style)
+        size = try c.decode(PadSize.self, forKey: .size)
+        showShortcuts = try c.decode(Bool.self, forKey: .showShortcuts)
+        groups = try c.decode([PadGroup].self, forKey: .groups)
+        if let decoded = try c.decodeIfPresent([PadItem].self, forKey: .items) {
+            items = decoded
+        } else {
+            let legacy = try c.decodeIfPresent([PadButton].self, forKey: .buttons) ?? []
+            items = legacy.map { PadItem.button($0) }
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(name, forKey: .name)
+        try c.encodeIfPresent(appBundleID, forKey: .appBundleID)
+        try c.encodeIfPresent(appName, forKey: .appName)
+        try c.encode(autoSwitch, forKey: .autoSwitch)
+        try c.encode(color, forKey: .color)
+        try c.encode(style, forKey: .style)
+        try c.encode(size, forKey: .size)
+        try c.encode(showShortcuts, forKey: .showShortcuts)
+        try c.encode(groups, forKey: .groups)
+        try c.encode(items, forKey: .items)
+    }
+
+    // MARK: Abfragen
+
+    /// Alle Buttons des Sets, auch die in Ordnern.
+    var allButtons: [PadButton] {
+        var result = [PadButton]()
+        for item in items {
+            switch item {
+            case .button(let button): result.append(button)
+            case .folder(let folder): result.append(contentsOf: folder.buttons)
+            }
+        }
+        return result
+    }
+
+    var buttonCount: Int { allButtons.count }
+
+    var folders: [PadFolder] {
+        var result = [PadFolder]()
+        for item in items {
+            if case .folder(let folder) = item { result.append(folder) }
+        }
+        return result
+    }
+
+    func folder(withID id: UUID?) -> PadFolder? {
+        guard let id = id else { return nil }
+        return folders.first { $0.id == id }
+    }
+
+    func button(withID id: UUID?) -> PadButton? {
+        guard let id = id else { return nil }
+        return allButtons.first { $0.id == id }
+    }
+
+    /// In welchem Ordner liegt der Button? Nil, wenn er auf der Hauptebene liegt (oder es ihn nicht gibt).
+    func folderID(containing buttonID: UUID) -> UUID? {
+        for folder in folders where folder.buttons.contains(where: { $0.id == buttonID }) {
+            return folder.id
+        }
+        return nil
     }
 
     func group(for button: PadButton) -> PadGroup? {
@@ -206,7 +346,14 @@ struct PadSet: Codable, Identifiable, Equatable {
         }
     }
 
-    /// Kopie mit neuen IDs für Set, Gruppen und Buttons (Gruppenverweise bleiben stimmig).
+    /// Ordner sind im Stil „Betont“ immer voll gezeichnet.
+    func isFilled(_ folder: PadFolder) -> Bool {
+        style != .bar
+    }
+
+    // MARK: Kopien
+
+    /// Kopie mit neuen IDs für Set, Gruppen, Ordner und Buttons (Gruppenverweise bleiben stimmig).
     func regenerated() -> PadSet {
         var copy = self
         copy.id = UUID()
@@ -217,11 +364,22 @@ struct PadSet: Codable, Identifiable, Equatable {
             mapping[group.id] = g.id
             return g
         }
-        copy.buttons = buttons.map { button in
+        func fresh(_ button: PadButton) -> PadButton {
             var b = button
             b.id = UUID()
             if let old = button.groupID { b.groupID = mapping[old] }
             return b
+        }
+        copy.items = items.map { item in
+            switch item {
+            case .button(let button):
+                return PadItem.button(fresh(button))
+            case .folder(let folder):
+                var f = folder
+                f.id = UUID()
+                f.buttons = folder.buttons.map { fresh($0) }
+                return PadItem.folder(f)
+            }
         }
         return copy
     }
@@ -240,14 +398,40 @@ struct PadSet: Codable, Identifiable, Equatable {
         }
         let knownGroups = Set(copy.groups.map { $0.id })
 
-        copy.buttons = Array(buttons.prefix(PadLimits.maxButtonsPerSet)).compactMap { button in
-            guard button.shortcut.isValid else { return nil }
-            var b = button
-            b.label = PadSet.clean(button.label, limit: PadLimits.maxLabelLength, fallback: "Button")
-            if let gid = b.groupID, !knownGroups.contains(gid) { b.groupID = nil }
-            return b
+        var remaining = PadLimits.maxButtonsPerSet
+        var folderCount = 0
+        var cleanedItems = [PadItem]()
+        for item in items.prefix(PadLimits.maxItemsPerSet) {
+            switch item {
+            case .button(let button):
+                guard remaining > 0, let cleaned = PadSet.cleanButton(button, known: knownGroups) else { continue }
+                remaining -= 1
+                cleanedItems.append(PadItem.button(cleaned))
+            case .folder(let folder):
+                guard folderCount < PadLimits.maxFoldersPerSet else { continue }
+                folderCount += 1
+                var f = folder
+                f.name = PadSet.clean(folder.name, limit: PadLimits.maxNameLength, fallback: "Ordner")
+                var kids = [PadButton]()
+                for child in folder.buttons {
+                    guard remaining > 0, let cleaned = PadSet.cleanButton(child, known: knownGroups) else { continue }
+                    remaining -= 1
+                    kids.append(cleaned)
+                }
+                f.buttons = kids
+                cleanedItems.append(PadItem.folder(f))
+            }
         }
+        copy.items = cleanedItems
         return copy
+    }
+
+    private static func cleanButton(_ button: PadButton, known groups: Set<UUID>) -> PadButton? {
+        guard button.shortcut.isValid else { return nil }
+        var b = button
+        b.label = clean(button.label, limit: PadLimits.maxLabelLength, fallback: "Button")
+        if let gid = b.groupID, !groups.contains(gid) { b.groupID = nil }
+        return b
     }
 
     private static func clean(_ text: String, limit: Int, fallback: String) -> String {
@@ -262,7 +446,8 @@ struct PadSet: Codable, Identifiable, Equatable {
 /// Inhalt einer .shortcutpad-Datei (Export und Import von Sets).
 struct PadFile: Codable {
     static let formatName = "shortcutpad"
-    static let currentVersion = 1
+    /// 1: flache Liste „buttons“. 2: „items“ mit Buttons und Ordnern. Format 1 wird weiter gelesen.
+    static let currentVersion = 2
 
     var format: String
     var version: Int

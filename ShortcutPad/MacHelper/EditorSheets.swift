@@ -304,7 +304,7 @@ struct ImportExportSheet: View {
                             Circle().fill(set.color.color).frame(width: 10, height: 10)
                             Text(set.name).font(.system(size: 14))
                             Spacer()
-                            Text("\(set.buttons.count) Buttons")
+                            Text("\(set.buttonCount) Buttons")
                                 .font(.system(size: 11.5, design: .monospaced))
                                 .foregroundColor(Theme.muted)
                         }

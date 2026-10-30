@@ -9,7 +9,7 @@ an das aktive Programm sendet. Alternativ liefert der Helper eine Webseite im lo
 Die USB-Variante wurde vom Nutzer gebaut und getestet (funktioniert). Die Web-Variante (`Web*.swift`, `LocalNetwork.swift`,
 `QRCode.swift`) wurde ohne Xcode geschrieben, ihr Test F ist noch nicht bestätigt. Neu und **noch nicht kompiliert** (ohne Xcode geschrieben, nur auf Syntax geprüft):
 die Mac-App mit Sets (`Shared/Models.swift`, `Shared/PadLayout.swift`, `MacHelper/SetStore.swift`, `DefaultSets.swift`,
-`EditorView.swift`, `EditorSheets.swift`, `ShortcutRecorder.swift`, `PadViews.swift`, `EditorComponents.swift`, `MenuBarView.swift`
+`EditorView.swift` (Ordnerseiten), `EditorSheets.swift`, `ShortcutRecorder.swift`, `PadViews.swift`, `EditorComponents.swift`, `MenuBarView.swift`
 sowie Änderungen in `HelperController`, `WebAPI`, `ShortcutPadHelperApp`). Erste Aufgabe dort: bauen und Fehler beheben,
 ohne die Architektur zu ändern. Design-Vorlage: `design/canvas/` und `docs/Designentscheidungen.md`.
 
@@ -41,6 +41,10 @@ Zum reinen Kompilieren ohne Signing: `CODE_SIGNING_ALLOWED=NO` an `xcodebuild` a
 * TIS-/UCKeyTranslate-Aufrufe (`KeyMap`) gehören auf den Main-Thread.
 * Sets, Buttons und Kürzel werden nur in der Mac-App bearbeitet (`SetStore`, Main-Thread). iOS-App und Webseite zeigen nur an.
   Gespeichert wird in `~/Library/Application Support/ShortcutPad/sets.json`; Export/Import als `.shortcutpad` (JSON, `PadFile`).
+* Ein Set hat `items` (Buttons und Ordner gemischt, `PadItem`); Ordner (`PadFolder`) liegen nur auf der Hauptebene.
+  Dateiformat 2; Format 1 (flache Liste `buttons`) wird beim Lesen übernommen (`PadSet.init(from:)`). Beim Ziehen entscheidet
+  `PadPreview`, ob umsortiert (gleiche Ebene) oder in einen Ordner abgelegt wird; die „<“-Kachel (`BackTileView`) steht in Ordnerseiten
+  an erster Stelle und ist Ablageziel für die Hauptebene. Geräte-Apps müssen dieselbe Kachel zeigen.
 * Das Fenster „Verbindung und Kopplung“ wird am Titel erkannt (`HelperController`, Selbsttest). Titel nicht ohne Anpassung ändern.
 * `project.yml` ist die Quelle der Wahrheit; das `.xcodeproj` ist generiert und nicht eingecheckt.
 

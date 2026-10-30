@@ -23,8 +23,10 @@ Canvas: https://claude.ai/artifact/Au7yi2PJPHhkVB5KEScm15 (Quellen in `design/ca
 - **Eigene Ordnerseite**: Ein Tipp öffnet die Seite mit Titel und Zurück-Taste (am Gerät) bzw. mit Brotkrümel „Photoshop › Ordner“ (am Mac).
   Welcher Ordner offen ist, merkt sich nur das Gerät.
 - Mac-Editor: Buttons und Ordner lassen sich im Raster frei verschieben. Ein Button auf einen Ordner ziehen legt ihn dort ab.
-  In der Ordnerseite wird ein Button auf „Photoshop“ im Brotkrümel gezogen, um ihn auf die Hauptebene zu legen.
+  In der Ordnerseite wird ein Button auf die „<“-Kachel gezogen, um ihn auf die Hauptebene zu legen.
   Alternative ohne Ziehen: „Ablegen in“ im Inspektor.
+- **Zurück-Kachel:** In jeder Ordnerseite ist die erste Kachel des Rasters ein hellgrauer Button mit großem „<“. Er springt zurück auf die Hauptebene
+  (am Mac außerdem Ablageziel für Buttons, die auf die Hauptebene sollen). Am Gerät gilt dasselbe.
 - Umsetzung in Schritten: erst Datenmodell und Datei-Umstellung (alte Dateien werden übernommen), dann Anzeige und Ordner anlegen, zuletzt das Ziehen.
 
 ## Regeln aus dem Briefing

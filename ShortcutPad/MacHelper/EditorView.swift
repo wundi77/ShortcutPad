@@ -16,24 +16,36 @@ enum EditorSheet: Identifiable {
     }
 }
 
-/// Hauptfenster der Mac-App: Sets links, Pad-Vorschau in der Mitte, Button-Eigenschaften rechts.
+/// Hauptfenster der Mac-App: Sets links, Pad-Vorschau in der Mitte, Eigenschaften rechts.
 struct EditorView: View {
     @EnvironmentObject private var store: SetStore
     @EnvironmentObject private var controller: HelperController
     @Environment(\.openWindow) private var openWindow
 
     @State private var selectedSetID: UUID? = nil
-    @State private var selectedButtonID: UUID? = nil
+    /// Ausgewählter Eintrag: Button oder Ordner.
+    @State private var selectedID: UUID? = nil
+    /// Geöffneter Ordner (Ordnerseite). Nil: Hauptebene.
+    @State private var openFolderID: UUID? = nil
     @State private var device: PadDevice = .tabletLandscape
     @State private var sheet: EditorSheet? = nil
+    /// Ordner, dessen Löschen (samt Buttons) noch bestätigt werden muss.
+    @State private var confirmDeleteFolderID: UUID? = nil
 
     private var currentSet: PadSet? {
         store.set(withID: selectedSetID) ?? store.sets.first
     }
 
-    private var currentButton: PadButton? {
-        guard let id = selectedButtonID else { return nil }
-        return currentSet?.buttons.first { $0.id == id }
+    private var currentFolder: PadFolder? {
+        currentSet?.folder(withID: openFolderID)
+    }
+
+    private var selectedButton: PadButton? {
+        currentSet?.button(withID: selectedID)
+    }
+
+    private var selectedFolder: PadFolder? {
+        currentSet?.folder(withID: selectedID)
     }
 
     var body: some View {
@@ -63,10 +75,37 @@ struct EditorView: View {
     private func ensureSelection() {
         if store.set(withID: selectedSetID) == nil {
             selectedSetID = store.set(withID: controller.activeSetID)?.id ?? store.sets.first?.id
+            openFolderID = nil
         }
-        if let id = selectedButtonID, currentSet?.buttons.contains(where: { $0.id == id }) != true {
-            selectedButtonID = nil
+        guard let set = currentSet else { return }
+        if openFolderID != nil && set.folder(withID: openFolderID) == nil {
+            openFolderID = nil
         }
+        if let id = selectedID, set.button(withID: id) == nil, set.folder(withID: id) == nil {
+            selectedID = nil
+        }
+    }
+
+    // MARK: Navigation
+
+    private func openFolder(_ id: UUID) {
+        guard currentSet?.folder(withID: id) != nil else { return }
+        openFolderID = id
+        selectedID = nil
+        confirmDeleteFolderID = nil
+    }
+
+    private func closeFolder() {
+        selectedID = openFolderID
+        openFolderID = nil
+        confirmDeleteFolderID = nil
+    }
+
+    private func selectSet(_ id: UUID) {
+        selectedSetID = id
+        selectedID = nil
+        openFolderID = nil
+        confirmDeleteFolderID = nil
     }
 
     // MARK: Statuszeile
@@ -121,8 +160,7 @@ struct EditorView: View {
                 VStack(spacing: 8) {
                     Button {
                         if let id = store.addSet() {
-                            selectedSetID = id
-                            selectedButtonID = nil
+                            selectSet(id)
                             sheet = .settings(id)
                         }
                     } label: {
@@ -154,8 +192,7 @@ struct EditorView: View {
     private func setRow(_ set: PadSet) -> some View {
         let isSelected = currentSet?.id == set.id
         return Button {
-            selectedSetID = set.id
-            selectedButtonID = nil
+            selectSet(set.id)
         } label: {
             HStack(spacing: 10) {
                 Circle().fill(set.color.color).frame(width: 10, height: 10)
@@ -202,16 +239,22 @@ struct EditorView: View {
             VStack(spacing: 0) {
                 centerHeader(set)
                 controlsRow(set)
+                breadcrumbRow(set)
                 PadPreview(
                     set: set,
+                    folder: currentFolder,
                     device: device,
-                    selectedID: $selectedButtonID,
+                    selectedID: $selectedID,
                     isConnected: controller.linkedDeviceName != nil || controller.webPairedCount > 0,
-                    onMove: { dragged, target in store.moveButton(dragged, onto: target, in: set.id) },
+                    onOpen: { id in openFolder(id) },
+                    onBack: { closeFolder() },
+                    onReorder: { dragged, target in store.reorder(dragged, onto: target, in: set.id) },
+                    onDropInto: { button, folder in store.moveButton(button, to: folder, in: set.id) },
+                    onDropToTop: { button in store.moveButton(button, to: nil, in: set.id) },
                     onAdd: { addButton() }
                 )
                 .padding(.horizontal, 28)
-                .padding(.vertical, 16)
+                .padding(.vertical, 12)
                 legendRow(set)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -241,6 +284,17 @@ struct EditorView: View {
             Button("Set-Einstellungen") { sheet = .settings(set.id) }
                 .buttonStyle(FlatButtonStyle(kind: .secondary))
             Button {
+                if let id = store.addFolder(to: set.id) {
+                    openFolderID = nil
+                    selectedID = id
+                }
+            } label: {
+                Label("Ordner", systemImage: "folder")
+            }
+            .buttonStyle(FlatButtonStyle(kind: .secondary))
+            .disabled(currentFolder != nil)
+            .help(currentFolder != nil ? "Ordner gibt es nur auf der Hauptebene." : "Neuen Ordner anlegen")
+            Button {
                 addButton()
             } label: {
                 Label("Button", systemImage: "plus")
@@ -254,7 +308,7 @@ struct EditorView: View {
     private func subtitle(for set: PadSet) -> String {
         let program = set.appName ?? "Alle anderen Programme"
         let mode = (set.appBundleID != nil && set.autoSwitch) ? "wechselt automatisch" : "wechselt nicht automatisch"
-        return "\(program) · \(mode) · \(set.buttons.count) Buttons"
+        return "\(program) · \(mode) · \(set.items.count) Elemente, \(set.buttonCount) Buttons"
     }
 
     private func controlsRow(_ set: PadSet) -> some View {
@@ -291,8 +345,55 @@ struct EditorView: View {
         )
     }
 
+    /// „Photoshop › Ebenen“: Wo bin ich? Ein Klick auf den Set-Namen geht zurück auf die Hauptebene.
+    private func breadcrumbRow(_ set: PadSet) -> some View {
+        HStack(spacing: 8) {
+            Button {
+                if currentFolder != nil { closeFolder() }
+            } label: {
+                HStack(spacing: 7) {
+                    Circle().fill(set.color.color).frame(width: 9, height: 9)
+                    Text(set.name).font(.system(size: 13, weight: .bold))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(currentFolder == nil ? Theme.raised : Theme.tile))
+            }
+            .buttonStyle(.plain)
+
+            if let folder = currentFolder {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(Theme.muted)
+                HStack(spacing: 7) {
+                    Image(systemName: "folder")
+                        .font(.system(size: 11, weight: .semibold))
+                    Text(folder.name).font(.system(size: 13, weight: .bold))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Theme.raised))
+            }
+
+            Spacer()
+            Text(levelInfo(set))
+                .font(.system(size: 11.5, design: .monospaced))
+                .foregroundColor(Theme.muted)
+        }
+        .padding(.horizontal, 28)
+        .padding(.top, 14)
+    }
+
+    private func levelInfo(_ set: PadSet) -> String {
+        if let folder = currentFolder {
+            return "\(folder.buttons.count) Buttons in diesem Ordner · zurück mit der Kachel „<“"
+        }
+        return "\(set.items.count) Elemente auf der Hauptebene (\(set.folders.count) Ordner)"
+    }
+
     private func legendRow(_ set: PadSet) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let allButtons = set.allButtons
+        return VStack(alignment: .leading, spacing: 10) {
             FlowLayout(spacing: 8, rowSpacing: 8) {
                 ForEach(set.groups) { group in
                     Button {
@@ -303,7 +404,7 @@ struct EditorView: View {
                             Text(group.name)
                                 .font(.system(size: 12.5, weight: .semibold))
                                 .lineLimit(1)
-                            Text("\(set.buttons.filter { $0.groupID == group.id }.count)")
+                            Text("\(allButtons.filter { $0.groupID == group.id }.count)")
                                 .font(.system(size: 11, design: .monospaced))
                                 .foregroundColor(Theme.muted)
                         }
@@ -333,10 +434,10 @@ struct EditorView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 12) {
-                Button("Nach Gruppe sortieren") { store.sortByGroup(in: set.id) }
+                Button("Nach Gruppe sortieren") { store.sortByGroup(in: set.id, folderID: openFolderID) }
                     .buttonStyle(FlatButtonStyle(kind: .secondary, compact: true))
                 Spacer()
-                Text("Ziehen zum Anordnen · Klick zum Bearbeiten")
+                Text("Ziehen zum Anordnen, auf einen Ordner ziehen zum Ablegen · Doppelklick öffnet einen Ordner")
                     .font(.system(size: 11.5))
                     .foregroundColor(Theme.muted)
                     .lineLimit(1)
@@ -346,18 +447,20 @@ struct EditorView: View {
         .padding(.bottom, 18)
     }
 
-    // MARK: Button-Eigenschaften
+    // MARK: Eigenschaften
 
     private var inspector: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                if let set = currentSet, let button = currentButton {
-                    inspectorContent(set: set, button: button)
+                if let set = currentSet, let folder = selectedFolder {
+                    folderInspector(set: set, folder: folder)
+                } else if let set = currentSet, let button = selectedButton {
+                    buttonInspector(set: set, button: button)
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Button")
+                        Text("Nichts ausgewählt")
                             .font(.system(size: 15, weight: .bold))
-                        Text("Wähle einen Button in der Vorschau, um Beschriftung, Kürzel und Farbe zu ändern.")
+                        Text("Wähle einen Button oder Ordner in der Vorschau, um Beschriftung, Kürzel und Farbe zu ändern.")
                             .font(.system(size: 13))
                             .foregroundColor(Theme.muted)
                             .fixedSize(horizontal: false, vertical: true)
@@ -372,15 +475,18 @@ struct EditorView: View {
         .background(Theme.sidebar)
     }
 
-    private func inspectorContent(set: PadSet, button: PadButton) -> some View {
-        let number = (set.buttons.firstIndex { $0.id == button.id } ?? 0) + 1
+    private func buttonInspector(set: PadSet, button: PadButton) -> some View {
+        let all = set.allButtons
+        let number = (all.firstIndex { $0.id == button.id } ?? 0) + 1
+        let parent = set.folder(withID: set.folderID(containing: button.id))
         return VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .firstTextBaseline) {
                 Text("Button").font(.system(size: 15, weight: .bold))
                 Spacer()
-                Text("\(number) / \(set.buttons.count)")
+                Text(parent.map { "in „\($0.name)“" } ?? "Hauptebene")
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundColor(Theme.muted)
+                    .lineLimit(1)
             }
 
             HStack {
@@ -408,7 +514,7 @@ struct EditorView: View {
                         }
                     )
                 )
-                Text("Kurz halten, höchstens zwei Zeilen. Kein Symbol, nur Text.")
+                Text("Kurz halten, höchstens zwei Zeilen. Kein Symbol, nur Text. Nummer \(number) von \(all.count).")
                     .font(.system(size: 11.5))
                     .foregroundColor(Theme.muted)
             }
@@ -457,6 +563,23 @@ struct EditorView: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
+                FieldLabel("Ablegen in")
+                Picker("Ablegen in", selection: Binding(
+                    get: { set.folderID(containing: button.id) },
+                    set: { value in moveSelectedButton(to: value) }
+                )) {
+                    Text("Hauptebene").tag(UUID?.none)
+                    ForEach(set.folders) { folder in
+                        Text("Ordner „\(folder.name)“").tag(UUID?.some(folder.id))
+                    }
+                }
+                .labelsHidden()
+                Text("Alternative zum Ziehen.")
+                    .font(.system(size: 11.5))
+                    .foregroundColor(Theme.muted)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
                 Button {
                     controller.test(button.shortcut, targetBundleID: set.appBundleID)
                 } label: {
@@ -467,7 +590,7 @@ struct EditorView: View {
                 HStack(spacing: 8) {
                     Button {
                         if let id = store.duplicateButton(button.id, in: set.id) {
-                            selectedButtonID = id
+                            selectedID = id
                         }
                     } label: {
                         Text("Duplizieren").frame(maxWidth: .infinity)
@@ -476,11 +599,107 @@ struct EditorView: View {
 
                     Button {
                         store.deleteButton(button.id, in: set.id)
-                        selectedButtonID = nil
+                        selectedID = nil
                     } label: {
                         Text("Löschen").frame(maxWidth: .infinity)
                     }
                     .buttonStyle(FlatButtonStyle(kind: .danger))
+                }
+            }
+        }
+    }
+
+    private func folderInspector(set: PadSet, folder: PadFolder) -> some View {
+        let confirming = confirmDeleteFolderID == folder.id
+        return VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Ordner").font(.system(size: 15, weight: .bold))
+                Spacer()
+                Text("Hauptebene")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundColor(Theme.muted)
+            }
+
+            HStack {
+                Spacer()
+                PadTileView(
+                    label: folder.name,
+                    keys: folder.buttons.count == 1 ? "1 Button" : "\(folder.buttons.count) Buttons",
+                    color: folder.color.color,
+                    filled: set.isFilled(folder),
+                    showKeys: true,
+                    size: 112,
+                    fontScale: 1.2,
+                    isFolder: true
+                )
+                Spacer()
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                FieldLabel("Name")
+                PadTextField(
+                    placeholder: "Name des Ordners",
+                    text: Binding(
+                        get: { folder.name },
+                        set: { value in
+                            store.updateFolder(folder.id, in: set.id) { $0.name = String(value.prefix(PadLimits.maxNameLength)) }
+                        }
+                    )
+                )
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                FieldLabel("Farbe")
+                SwatchRow(selected: folder.color) { color in
+                    store.updateFolder(folder.id, in: set.id) { $0.color = color }
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                FieldLabel("Inhalt")
+                Text(folder.buttons.count == 1 ? "1 Button" : "\(folder.buttons.count) Buttons")
+                    .font(.system(size: 14))
+                Text("Ordner gibt es nur auf der Hauptebene. Am Gerät öffnet ein Tipp die Ordnerseite, die Zurück-Kachel steht dort an erster Stelle.")
+                    .font(.system(size: 11.5))
+                    .foregroundColor(Theme.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Button {
+                    openFolder(folder.id)
+                } label: {
+                    Text("Ordner öffnen").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(FlatButtonStyle(kind: .primary))
+
+                HStack(spacing: 8) {
+                    Button {
+                        store.dissolveFolder(folder.id, in: set.id)
+                        selectedID = nil
+                    } label: {
+                        Text("Auflösen").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(FlatButtonStyle(kind: .secondary))
+                    .help("Die Buttons des Ordners kommen an seiner Stelle auf die Hauptebene.")
+
+                    Button {
+                        if confirming || folder.buttons.isEmpty {
+                            store.deleteFolder(folder.id, in: set.id)
+                            selectedID = nil
+                            confirmDeleteFolderID = nil
+                        } else {
+                            confirmDeleteFolderID = folder.id
+                        }
+                    } label: {
+                        Text(confirming ? "Mit Buttons löschen" : "Löschen").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(FlatButtonStyle(kind: .danger))
+                }
+                if confirming {
+                    Text("Der Ordner und seine \(folder.buttons.count) Buttons werden gelöscht.")
+                        .font(.system(size: 11.5))
+                        .foregroundColor(Theme.danger)
                 }
             }
         }
@@ -500,15 +719,22 @@ struct EditorView: View {
 
     private func addButton() {
         guard let set = currentSet else { return }
-        if let id = store.addButton(to: set.id) {
-            selectedButtonID = id
+        if let id = store.addButton(to: set.id, in: openFolderID) {
+            selectedID = id
             sheet = .recorder(id)
         }
     }
 
     private func updateButton(_ change: (inout PadButton) -> Void) {
-        guard let setID = currentSet?.id, let buttonID = selectedButtonID else { return }
+        guard let setID = currentSet?.id, let buttonID = selectedID else { return }
         store.updateButton(buttonID, in: setID, change)
+    }
+
+    /// Legt den ausgewählten Button in einen Ordner oder auf die Hauptebene und springt dorthin.
+    private func moveSelectedButton(to folderID: UUID?) {
+        guard let setID = currentSet?.id, let buttonID = selectedID else { return }
+        store.moveButton(buttonID, to: folderID, in: setID)
+        openFolderID = folderID
     }
 
     // MARK: Sheets
@@ -526,7 +752,7 @@ struct EditorView: View {
                 .environmentObject(store)
             }
         case .recorder(let buttonID):
-            if let set = currentSet, let button = set.buttons.first(where: { $0.id == buttonID }) {
+            if let set = currentSet, let button = set.button(withID: buttonID) {
                 ShortcutRecorderSheet(buttonName: button.label, setName: set.name, initial: button.shortcut) { result in
                     if let shortcut = result {
                         store.updateButton(buttonID, in: set.id) { $0.shortcut = shortcut }

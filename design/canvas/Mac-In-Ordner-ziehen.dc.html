@@ -140,11 +140,9 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #5B9B
           <div class="screen" style="{{frame.inner}}">
             <div style="{{frame.head}}">
               <sc-if value="{{inFolder}}" hint-placeholder-val="{{false}}">
-                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#A3A6AF">
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 2.5 4 6l3.5 3.5"/></svg>
-                  Photoshop
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#A3A6AF">Photoshop ›
+                  <span style="font-size:13px;font-weight:700;color:#F2F3F5">{{crumb.folder}}</span>
                 </span>
-                <span style="font-size:13px;font-weight:700">{{crumb.folder}}</span>
               </sc-if>
               <sc-if value="{{inMain}}" hint-placeholder-val="{{true}}">
                 <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700"><span style="width:8px;height:8px;border-radius:50%;background:#0B63F0"></span>Photoshop</span>
@@ -367,6 +365,7 @@ class Component extends DCLogic{
     };
 
     const dragSrc=demo==='into'&&!inFolder?11:(demo==='out'&&inFolder?1:-1);
+    const backHot=demo==='out'&&inFolder;
     const dropTarget=demo==='into'&&!inFolder?6:-1;
     const tiles=list.map((it,i)=>{
       const L=look(it,D.lf,D.kf);
@@ -376,6 +375,18 @@ class Component extends DCLogic{
       if(i===dropTarget)style+=';box-shadow:0 0 0 3px #5B9BFF,0 0 26px rgba(91,155,255,.5);transform:scale(1.06)';
       return {label:L.label,keys:L.keys,style:style,lf:L.lf,kf:L.kf,bar:L.bar,tab:L.tab,pick:()=>this.setState({sel:it.id})};
     });
+    if(inFolder){
+      tiles.unshift({
+        label:'<',
+        keys:'',
+        style:'background:#D0D3DA;color:#1E1F23'+(backHot?';box-shadow:0 0 0 3px #5B9BFF,0 0 26px rgba(91,155,255,.5);transform:scale(1.06)':''),
+        lf:'font-size:'+Math.round(T*0.55)+'px;font-weight:600',
+        kf:'display:none',
+        bar:'display:none',
+        tab:'display:none',
+        pick:()=>{this.setState({folder:null,sel:'m'+folderIdx});}
+      });
+    }
 
     let ghost={on:false,style:'display:none',label:'',keys:'',lf:'',kf:''};
     if(dragSrc>=0){
@@ -388,8 +399,8 @@ class Component extends DCLogic{
         left=D.pad+col*(T+D.gap)-T*0.3;
         top=HEAD+row*(T+D.gap)+T*0.55;
       }else{
-        left=D.pad+T*0.2;
-        top=6;
+        left=D.pad+T*0.5;
+        top=HEAD+T*0.45;
       }
       ghost={
         on:true,
@@ -420,7 +431,7 @@ class Component extends DCLogic{
       pick:()=>{const c=Object.assign({},this.state.colors||{});c[sel]=k;this.setState({colors:c});}
     }));
 
-    const crumbHot=demo==='out'&&inFolder;
+    const crumbHot=false;
     return {
       inFolder:inFolder,
       inMain:!inFolder,
@@ -450,7 +461,7 @@ class Component extends DCLogic{
         inner:'border-radius:'+(D.r-10)+'px',
         head:'flex:none;height:'+HEAD+'px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 '+D.pad+'px',
         grid:'flex:1;min-height:0;display:grid;grid-template-columns:repeat('+D.cols+',minmax(0,1fr));grid-auto-rows:min-content;gap:'+D.gap+'px;padding:0 '+D.pad+'px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 88%,transparent);mask-image:linear-gradient(#000 88%,transparent)',
-        caption:demo==='into'?'Loslassen legt „Radierer“ in den Ordner „Ebenen“ · '+D.cap:(demo==='out'?'Auf „Photoshop“ ziehen legt „Gruppe“ zurück auf die Hauptebene · '+D.cap:D.cap)
+        caption:demo==='into'?'Loslassen legt „Radierer“ in den Ordner „Ebenen“ · '+D.cap:(demo==='out'?'Auf die Zurück-Kachel „<“ ziehen legt „Gruppe“ zurück auf die Hauptebene · '+D.cap:(inFolder?'Erste Kachel „<“ springt zurück auf die Hauptebene · '+D.cap:D.cap))
       },
       tiles:tiles,
       ghost:ghost,

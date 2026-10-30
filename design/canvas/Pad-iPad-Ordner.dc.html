@@ -25,9 +25,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #5B9BFF;outline-offset:2p
 
   <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px">
     <div style="display:flex;align-items:center;gap:22px">
-      <a href="Pad-iPad-quer.dc.html" style="display:inline-flex;align-items:center;gap:6px;min-height:52px;color:#6FA8FF;font-size:20px;font-weight:600;text-decoration:none">
-        <svg width="20" height="20" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 2.5 4 6l3.5 3.5"/></svg>Photoshop
-      </a>
+      <span style="display:inline-flex;align-items:center;min-height:52px;color:#A3A6AF;font-size:20px;font-weight:600">Photoshop ›</span>
       <div style="display:inline-flex;align-items:center;gap:12px">
         <span style="width:14px;height:14px;border-radius:50%;background:#CC420C"></span>
         <span style="font-size:34px;font-weight:800;letter-spacing:-.015em">Ebenen</span>
@@ -46,7 +44,7 @@ button:focus-visible,a:focus-visible{outline:2px solid #5B9BFF;outline-offset:2p
       <sc-for list="{{tiles}}" as="t" hint-placeholder-count="16">
         <button class="tile" style="{{t.style}}">
           <span class="tab" style="{{t.tab}}"></span>
-          <span class="tl" style="font-size:17px">{{t.label}}</span>
+          <span class="tl" style="font-size:{{t.size}}px">{{t.label}}</span>
           <span class="tk" style="{{t.kf}}">{{t.keys}}</span>
           <span class="tb" style="{{t.bar}}"></span>
         </button>
@@ -69,6 +67,7 @@ class Component extends DCLogic{
       const filled=VARIANT==='fill'||(VARIANT==='mix'&&(b[3]||b.length>4));
       return {
         label:b[1],
+        size:17,
         keys:b.length>4?b[4]+' Buttons':b[2],
         style:filled?'background:'+c+';color:#fff':'background:#25262B;color:#F2F3F5',
         kf:(filled?'color:rgba(255,255,255,.88)':'color:#A3A6AF')+';font-size:'+KEYS_PX+'px',
@@ -76,6 +75,7 @@ class Component extends DCLogic{
         tab:b.length>4?'background:'+(filled?'rgba(255,255,255,.4)':c):'display:none'
       };
     });
+    tiles.unshift({size:64,label:'<',keys:'',style:'background:#D0D3DA;color:#1E1F23',kf:'display:none',bar:'display:none',tab:'display:none'});
     return {tiles:tiles};
   }
 }
