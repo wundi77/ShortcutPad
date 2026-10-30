@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 final class HelperController: ObservableObject {
@@ -6,11 +7,15 @@ final class HelperController: ObservableObject {
     @Published private(set) var attachedDevices: [Int: String] = [:]
     @Published private(set) var linkedDeviceName: String?
     @Published private(set) var frontmostApp = "–"
+    /// Set, das gerade ans Pad ausgeliefert wird (automatisch nach vorderstem Programm oder fixiert).
+    @Published private(set) var activeSetID: UUID?
+    /// Vom Nutzer fixiertes Set. Solange gesetzt, wechselt das Pad nicht mit dem Programm.
+    @Published private(set) var pinnedSetID: UUID?
     @Published private(set) var lastTrigger = "–"
     @Published private(set) var lastLocalKey = "–"
     @Published private(set) var logLines: [String] = []
     /// Selbsttest: Tasten, die in diesem Fenster ankommen, werden angezeigt und nicht weitergereicht.
-    @Published var captureLocalKeys = true
+    @Published var captureLocalKeys = false
 
     // Web-Variante (Seite im lokalen Netzwerk)
     /// Schalter in der Oberfläche; `didSet` startet bzw. stoppt den Webserver. Standard: aus.
@@ -39,15 +44,91 @@ final class HelperController: ObservableObject {
     private let webAPI = WebAPI()
     private let injectLock = NSLock()
 
+    let store = SetStore.shared
+    private var lastExternalBundleID: String?
+    private var storeObserver: AnyCancellable?
+
     init() {
         signal(SIGPIPE, SIG_IGN)
         macName = Host.current().localizedName ?? "Mac"
         frontmostApp = NSWorkspace.shared.frontmostApplication?.localizedName ?? "–"
+        if let id = NSWorkspace.shared.frontmostApplication?.bundleIdentifier, id != Bundle.main.bundleIdentifier {
+            lastExternalBundleID = id
+        }
         refreshAccessibility(prompt: true)
         installObservers()
         installKeyMonitor()
         startWatcher()
         setupWeb()
+        observeStore()
+    }
+
+    // MARK: Sets
+
+    private func observeStore() {
+        // $sets meldet vor der Änderung; über den Main-Queue-Hop ist der neue Stand dann sichtbar.
+        storeObserver = store.$sets
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.updateActiveSet() }
+        updateActiveSet()
+    }
+
+    /// Bestimmt, welches Set gerade aktiv ist: das fixierte, sonst das zum vordersten Programm passende, sonst das Rückfall-Set.
+    private func updateActiveSet() {
+        if let pinned = pinnedSetID, store.set(withID: pinned) == nil {
+            pinnedSetID = nil
+        }
+        let target = pinnedSetID ?? store.setForApp(bundleID: lastExternalBundleID)?.id
+        if target != activeSetID {
+            activeSetID = target
+            if let name = store.set(withID: target)?.name {
+                addLog("Aktives Set: \(name)")
+            }
+        }
+    }
+
+    /// Wählt ein Set von Hand und fixiert es, bis „Automatisch“ gewählt wird.
+    func selectSet(_ id: UUID) {
+        pinnedSetID = id
+        updateActiveSet()
+    }
+
+    func unpin() {
+        pinnedSetID = nil
+        updateActiveSet()
+    }
+
+    func togglePin() {
+        if pinnedSetID != nil {
+            unpin()
+        } else if let id = activeSetID {
+            selectSet(id)
+        }
+    }
+
+    /// Alle Sets plus aktives Set für iPad, iPhone und Webseite. Darf von beliebigen Threads aufgerufen werden.
+    func libraryPayload() -> PadLibraryPayload {
+        onMainSync {
+            PadLibraryPayload(
+                revision: store.revision,
+                sets: store.sets,
+                activeSetID: activeSetID,
+                pinned: pinnedSetID != nil
+            )
+        }
+    }
+
+    /// Löst ein Kürzel zum Ausprobieren aus. Ist das Programm des Sets geöffnet, kommt es vorher nach vorne.
+    func test(_ shortcut: Shortcut, targetBundleID: String?) {
+        var delay = 0.0
+        if let id = targetBundleID,
+           let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first {
+            app.activate(options: [])
+            delay = 0.5
+        }
+        DispatchQueue.global().asyncAfter(deadline: .now() + delay) { [weak self] in
+            _ = self?.executeShortcut(shortcut, source: "Test")
+        }
     }
 
     // MARK: Berechtigung
@@ -86,6 +167,10 @@ final class HelperController: ObservableObject {
         ) { [weak self] note in
             let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
             self?.frontmostApp = app?.localizedName ?? "–"
+            if let id = app?.bundleIdentifier, id != Bundle.main.bundleIdentifier {
+                self?.lastExternalBundleID = id
+                self?.updateActiveSet()
+            }
             self?.pushStatus()
         }
 
@@ -98,8 +183,12 @@ final class HelperController: ObservableObject {
     private func installKeyMonitor() {
         _ = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self = self else { return event }
-            self.lastLocalKey = Self.describe(event)
-            return self.captureLocalKeys ? nil : event
+            // Nur im Verbindungsfenster auswerten, damit Eingaben im Editor nie verschluckt werden.
+            let inConnectionWindow = event.window?.title == "Verbindung und Kopplung"
+            if inConnectionWindow {
+                self.lastLocalKey = Self.describe(event)
+            }
+            return (self.captureLocalKeys && inConnectionWindow) ? nil : event
         }
     }
 
@@ -272,6 +361,9 @@ final class HelperController: ObservableObject {
         }
         webAPI.executor = { [weak self] shortcut in
             self?.executeShortcut(shortcut, source: "Web") ?? ShortcutOutcome(ok: false, message: "Helper beendet")
+        }
+        webAPI.libraryProvider = { [weak self] in
+            self?.libraryPayload() ?? PadLibraryPayload(revision: 0, sets: [], activeSetID: nil, pinned: false)
         }
         webAPI.onLog = { [weak self] text in self?.addLog(text) }
         webAPI.onPairingsChanged = { [weak self] in

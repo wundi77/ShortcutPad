@@ -46,6 +46,9 @@ final class WebAPI {
     var executor: (Shortcut) -> ShortcutOutcome = { _ in
         ShortcutOutcome(ok: false, message: "nicht verfügbar")
     }
+    var libraryProvider: () -> PadLibraryPayload = {
+        PadLibraryPayload(revision: 0, sets: [], activeSetID: nil, pinned: false)
+    }
     var onLog: (String) -> Void = { _ in }
     var onPairingsChanged: () -> Void = {}
 
@@ -92,6 +95,10 @@ final class WebAPI {
         case ("GET", "/api/status"):
             guard isAuthorized(request) else { return unauthorized() }
             return .json(statusProvider())
+
+        case ("GET", "/api/library"):
+            guard isAuthorized(request) else { return unauthorized() }
+            return .json(libraryProvider())
 
         case ("POST", "/api/trigger"):
             guard isAuthorized(request) else { return unauthorized() }

@@ -104,6 +104,42 @@ Gut zu wissen:
 
 ---
 
+## Teil 8 – Mac-App: Sets und Buttons bearbeiten
+
+Der Mac-Helper ist jetzt die Mac-App. Beim Start öffnet sich das Fenster **ShortcutPad** (Editor), und in der Menüleiste
+erscheint ein Symbol. Das Fenster darf geschlossen werden, die App läuft weiter.
+
+1. **Sets:** Links stehen die Sets (zuerst „Photoshop“ als Beispiel und „Allgemein“ als Rückfall). Ein Set gehört zu einem
+   Programm und wechselt automatisch, sobald dieses Programm am Mac vorne ist. „Allgemein“ gilt für alle anderen Programme.
+2. **Buttons:** In der Vorschau in der Mitte anklicken zum Bearbeiten, ziehen zum Neuanordnen, „+ Button“ legt einen neuen an
+   (der Dialog „Kürzel aufnehmen“ öffnet sich gleich). Das Gerät oben (iPhone/iPad, hoch/quer) zeigt Spalten und Mindestgröße.
+3. **Rechts** stehen Beschriftung, Kürzel, Farbe und Gruppe des gewählten Buttons. „Am Mac testen“ holt das Programm des Sets
+   nach vorne und sendet das Kürzel.
+4. **Gruppen** sind Farben: Unten in der Vorschau auf eine Gruppe klicken, um Name und Farbe zu ändern. Ein Button kann die
+   Gruppenfarbe mit einer eigenen Farbe überschreiben.
+5. **Set-Einstellungen:** Name, Programm, automatisches Umschalten, Set-Farbe, Stil (Balken, Voll, Betont), Buttongröße und ob
+   das Kürzel klein auf dem Button steht.
+6. **Import/Export:** Sets werden als Datei `.shortcutpad` gesichert und auf einem anderen Mac importiert (als neues Set oder
+   ein gleichnamiges Set ersetzen).
+7. **Menüleiste:** zeigt den Status, das vorderste Programm und das aktive Set. „Fixieren“ hält das Set fest, auch wenn das
+   Programm wechselt. Ein Klick auf ein Set fixiert es ebenfalls; „Wieder automatisch wählen“ hebt das auf.
+8. **Verbindung und Kopplung** (Menüleiste oder Chip oben rechts im Editor): USB, Webseite, Kopplungscode, Berechtigung, Protokoll.
+
+Die Sets liegen in `~/Library/Application Support/ShortcutPad/sets.json`. iPad, iPhone und Webseite zeigen die Sets in
+einem späteren Schritt an; die Webseite kann sie schon über `GET /api/library` abrufen (mit Token).
+
+### Test der Mac-App
+
+| Test | Vorgehen | Erwartung |
+|---|---|---|
+| G – Start | App starten | Editor mit Set „Photoshop“, 28 Buttons, Symbol in der Menüleiste |
+| H – Umschalten | Photoshop (oder TextEdit nach Zuordnung) nach vorne holen | Set wird in der Seitenleiste und im Menüleistenfenster „aktiv“ |
+| I – Kürzel aufnehmen | Button wählen, „Aufnehmen“, ⇧⌘N drücken | Tastenköpfe zeigen ⇧ ⌘ N, „Übernehmen“ speichert |
+| J – Warnung | Beim Aufnehmen „/“ auf deutschem Layout drücken | Warnung statt stiller Fehler |
+| K – Neuanordnen | Button in der Vorschau auf einen anderen ziehen | Reihenfolge ändert sich |
+| L – Export/Import | Set exportieren, in „Import“ als neues Set laden | Set erscheint mit „(Import)“ im Namen |
+| M – Neustart | App beenden und neu starten | Sets sind unverändert |
+
 ## Wenn etwas nicht klappt
 
 | Problem | Lösung |
