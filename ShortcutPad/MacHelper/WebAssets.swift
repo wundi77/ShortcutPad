@@ -111,6 +111,7 @@ enum WebAssets {
   .toast .tt { font-size: 14.5px; font-weight: 700; color: #ddf8e6; } .toast.bad .tt { color: #ffc2cb; }
   .toast .td { font-size: 11.5px; margin-top: 2px; color: #9fd9b4; } .toast.bad .td { color: #e9cdd2; }
   .toast svg { flex: none; }
+  .ic-ok { color: #4ade80; } .ic-bad { color: #ff6b7f; } .ic-chk { color: #6fa8ff; }
 
   /* Set wählen */
   .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .58); z-index: 20; }
@@ -222,9 +223,9 @@ enum WebAssets {
 
   var ICON_CHEV = '<svg class="chev" width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>';
   var ICON_PIN = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l-1 5 3 3v2H7v-2l3-3-1-5z"/><path d="M12 13v8"/></svg>';
-  var ICON_OK = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#4ade80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 8 14.5 16 5.5"/></svg>';
-  var ICON_BAD = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#ff6b7f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>';
-  var ICON_CHECK = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#6fa8ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-label="aktuell"><path d="M4 10.5 8 14.5 16 5.5"/></svg>';
+  var ICON_OK = '<svg class="ic-ok" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 8 14.5 16 5.5"/></svg>';
+  var ICON_BAD = '<svg class="ic-bad" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>';
+  var ICON_CHECK = '<svg class="ic-chk" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-label="aktuell"><path d="M4 10.5 8 14.5 16 5.5"/></svg>';
 
   // ---------- Kürzel anzeigen ----------
 
@@ -774,10 +775,20 @@ enum WebAssets {
 
   // ---------- Start ----------
 
+  // Der Code steht normalerweise nach dem „#“ der Adresse; zur Sicherheit wird auch ?pin=… und ein verirrtes %23pin=… im Pfad erkannt.
+  function findPin() {
+    var where = [window.location.hash || '', window.location.search || '', window.location.pathname || ''];
+    for (var i = 0; i < where.length; i++) {
+      var m = /pin(?:=|%3D)(\d{6})/i.exec(where[i]);
+      if (m) { return m; }
+    }
+    return null;
+  }
+
   function start() {
-    var match = /pin=(\d{6})/.exec(window.location.hash || '');
+    var match = findPin();
     if (match) {
-      try { history.replaceState(null, '', window.location.pathname); } catch (e) { /* egal */ }
+      try { history.replaceState(null, '', '/'); } catch (e) { /* egal */ }
       token = '';
       remove(TOKEN_KEY);
       showPair();
@@ -788,7 +799,7 @@ enum WebAssets {
   }
 
   window.addEventListener('hashchange', function () {
-    if (/pin=\d{6}/.test(window.location.hash || '')) { start(); }
+    if (findPin()) { start(); }
   });
 
   start();

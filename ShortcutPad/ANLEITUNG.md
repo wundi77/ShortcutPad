@@ -56,9 +56,10 @@ Mit `./build.command --no-start` wird nur gebaut, mit `--debug` ein Debug-Build.
 Der Mac liefert die Seite im lokalen Netz aus. Voraussetzung: Mac und Gerät sind im **selben Netzwerk**.
 
 12. Menüleisten-Symbol → **Verbindung und Kopplung** (oder Chip oben rechts im Editor).
-13. Schalter **„Webseite im lokalen Netzwerk anbieten“** einschalten.
+13. Oben im Fenster stehen sofort **QR-Code**, **Kopplungscode** und die **Adresse** (z. B. `http://192.168.178.25:8765/`). Die Webseite ist
+    beim ersten Start schon eingeschaltet; der Schalter oben rechts im Fenster schaltet sie aus und an.
     * Beim ersten Mal fragt macOS evtl. „Möchten Sie, dass ShortcutPadHelper eingehende Netzwerkverbindungen akzeptiert?“ → **Erlauben**.
-    * Im Fenster erscheinen **Adresse** (z. B. `http://192.168.178.25:8765/`), **Kopplungscode** und **QR-Code**.
+    * Gibt es mehrere Adressen, nutzt der QR-Code die erste (Heimnetz 192.168.x.x zuerst). Erreicht das Gerät sie nicht, eine andere in Safari eintippen.
 14. **Am iPad/iPhone:** Kamera auf den QR-Code richten und den Link antippen (öffnet Safari und koppelt automatisch).
     Alternativ in Safari die Adresse eintippen und den 6-stelligen Code eingeben.
 15. Die Seite zeigt das **Set des vordersten Programms** mit allen Buttons und Ordnern und darunter eine Statuszeile mit dem Mac und dem
@@ -138,6 +139,7 @@ und aktualisiert sich selbst, sobald du am Mac etwas änderst.
 | Rote Fehler beim Bauen | Meldungen aus dem Issue Navigator (Warndreieck links) kopieren oder Screenshot machen. Der Code wurde ohne Compiler geschrieben, einzelne Fehler sind beim ersten Build möglich. |
 | App zeigt „✓ Freigegeben“, aber es passiert nichts | App nicht aus Xcode starten: Product → Show Build Folder in Finder → `ShortcutPadHelper.app` von dort starten, Freigabe dort erteilen |
 | Bedienungshilfen-Freigabe verschwindet nach jedem Build | Es muss das Personal Team als Signatur eingestellt sein (nicht „Sign to Run Locally“) |
+| Webseite zeigt „Nicht gefunden“ oder „Server nicht gefunden“ | Zuerst am Mac selbst in Safari die Adresse aus dem Fenster öffnen. Klappt das, steht im Protokoll „Webseite wurde aufgerufen“. Klappt es nur am Mac, liegt es am Netz: Firewall-Abfrage bestätigen, kein Gastnetz, keine „Client-Isolation“ im Router, richtige Adresse (nicht die eines VPN oder einer virtuellen Maschine) |
 | Webseite lädt nicht | Gleiches Netz? Kein Gastnetz und keine „Client-Isolation“ im Router? Schalter in der Mac-App an? Adresse exakt mit `http://` und `:8765`? |
 | Webseite: „Mac nicht erreichbar“ | Mac im Ruhezustand oder Helper beendet; macOS-Firewall-Abfrage mit „Erlauben“ bestätigen (Systemeinstellungen → Netzwerk → Firewall → Optionen) |
 | Helper: „Port ist bereits belegt“ | Zweite Helper-Instanz läuft noch: alle beenden, neu starten |

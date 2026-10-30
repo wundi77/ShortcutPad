@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Fenster „Verbindung und Kopplung“: Oben stehen QR-Code und Kopplungscode, darunter Status, Berechtigung und Protokoll.
 struct HelperView: View {
     @EnvironmentObject private var controller: HelperController
 
@@ -7,13 +8,12 @@ struct HelperView: View {
         ScrollView {
             content
         }
-        .frame(minWidth: 540, minHeight: 600)
+        .frame(minWidth: 640, minHeight: 620)
     }
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("ShortcutPad Helper")
-                .font(.title2.weight(.bold))
+            pairingCard
 
             GroupBox(label: Text("Status")) {
                 VStack(alignment: .leading, spacing: 6) {
@@ -26,18 +26,16 @@ struct HelperView: View {
                 .padding(4)
             }
 
-            webBox
-
             GroupBox(label: Text("Berechtigung „Bedienungshilfen“")) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(controller.accessibilityGranted ? "✓ Freigegeben" : "✗ Nicht freigegeben – ohne sie kann der Helper keine Tasten senden.")
+                    Text(controller.accessibilityGranted ? "✓ Freigegeben" : "✗ Nicht freigegeben – ohne sie kann die App keine Tasten senden.")
                         .foregroundColor(controller.accessibilityGranted ? .green : .red)
                     if !controller.accessibilityGranted {
                         HStack {
                             Button("Berechtigung anfragen") { controller.requestAccessibility() }
                             Button("Systemeinstellungen öffnen") { controller.openAccessibilitySettings() }
                         }
-                        Text("Falls es nach dem Freigeben weiter „nicht freigegeben“ zeigt: Helper beenden und neu starten.")
+                        Text("Falls es nach dem Freigeben weiter „nicht freigegeben“ zeigt: App beenden und neu starten.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -77,75 +75,117 @@ struct HelperView: View {
         .padding(18)
     }
 
-    private var webBox: some View {
-        GroupBox(label: Text("Webseite für iPad und iPhone (gleiches WLAN/LAN)")) {
-            VStack(alignment: .leading, spacing: 8) {
-                Toggle("Webseite im lokalen Netzwerk anbieten", isOn: $controller.webEnabled)
+    // MARK: Kopplung
 
-                if let error = controller.webError {
-                    Text("✗ Webserver konnte nicht starten: \(error)")
-                        .foregroundColor(.red)
-                }
+    private var pairingCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Mit iPad oder iPhone koppeln")
+                    .font(.title2.weight(.bold))
+                Spacer()
+                Toggle("Webseite anbieten", isOn: $controller.webEnabled)
+                    .toggleStyle(.switch)
+            }
 
-                if controller.webRunning {
-                    if controller.webAddresses.isEmpty {
-                        Text("Keine Netzwerkadresse gefunden – ist der Mac mit WLAN oder LAN verbunden?")
-                            .foregroundColor(.orange)
-                    } else {
-                        HStack(alignment: .top, spacing: 18) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Im Safari des iPads öffnen:")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                ForEach(controller.webAddresses, id: \.self) { ip in
-                                    Text(controller.webURL(for: ip))
-                                        .font(.system(.body, design: .monospaced))
-                                        .textSelection(.enabled)
-                                }
-                                Text("Kopplungscode")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .padding(.top, 4)
-                                Text(controller.webPIN)
-                                    .font(.system(size: 28, weight: .semibold, design: .monospaced))
-                                    .textSelection(.enabled)
-                                row("Gekoppelte Geräte", "\(controller.webPairedCount)")
-                                Button("Kopplungen löschen, neuen Code erzeugen") {
-                                    controller.resetWebPairings()
-                                }
-                            }
-                            if let text = controller.webQRText, let image = QRCode.image(for: text) {
-                                VStack(spacing: 4) {
-                                    Image(nsImage: image)
-                                        .resizable()
-                                        .interpolation(.none)
-                                        .frame(width: 140, height: 140)
-                                        .padding(6)
-                                        .background(Color.white)
-                                    Text("QR-Code mit der iPad-Kamera scannen\n(koppelt automatisch)")
-                                        .font(.caption)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
+            if let error = controller.webError {
+                Text("✗ Der Webserver konnte nicht starten: \(error)")
+                    .foregroundColor(.red)
+            }
+
+            if !controller.webRunning {
+                Text("Schalte „Webseite anbieten“ ein. Dann erscheinen hier der QR-Code und der Kopplungscode.")
+                    .foregroundColor(.secondary)
+            } else if controller.webAddresses.isEmpty {
+                Text("Keine Netzwerkadresse gefunden. Ist der Mac mit WLAN oder LAN verbunden?")
+                    .foregroundColor(.orange)
+            } else {
+                HStack(alignment: .top, spacing: 26) {
+                    qrBlock
+                    VStack(alignment: .leading, spacing: 14) {
+                        codeBlock
+                        addressBlock
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+            }
 
-                Text("Hinweis: Die Verbindung ist unverschlüsselt (HTTP) und nur durch den Kopplungscode geschützt. Nur in einem vertrauenswürdigen Netz verwenden. Der Mac darf nicht schlafen.")
+            Text("Mac und Gerät müssen im selben WLAN sein. Die Verbindung ist unverschlüsselt (HTTP) und nur durch den Kopplungscode geschützt; nur in einem Netz verwenden, dem du vertraust. Der Mac darf nicht schlafen.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(18)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color(nsColor: .controlBackgroundColor)))
+    }
+
+    private var qrBlock: some View {
+        VStack(spacing: 8) {
+            if let text = controller.webQRText, let image = QRCode.image(for: text) {
+                Image(nsImage: image)
+                    .resizable()
+                    .interpolation(.none)
+                    .frame(width: 210, height: 210)
+                    .padding(10)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                Text("Kamera am iPad oder iPhone auf den\nQR-Code richten und den Link antippen.\nDie Kopplung läuft dann automatisch.")
                     .font(.caption)
+                    .multilineTextAlignment(.center)
                     .foregroundColor(.secondary)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(4)
         }
+    }
+
+    private var codeBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Kopplungscode")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(formattedPIN)
+                .font(.system(size: 42, weight: .semibold, design: .monospaced))
+                .textSelection(.enabled)
+            HStack(spacing: 10) {
+                Text(controller.webPairedCount == 1 ? "1 Gerät gekoppelt" : "\(controller.webPairedCount) Geräte gekoppelt")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                Button("Kopplungen löschen, neuen Code erzeugen") {
+                    controller.resetWebPairings()
+                }
+                .controlSize(.small)
+            }
+        }
+    }
+
+    private var addressBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Ohne QR-Code: im Safari öffnen und den Code eingeben")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            ForEach(controller.webAddresses, id: \.self) { ip in
+                Text(controller.webURL(for: ip))
+                    .font(.system(.body, design: .monospaced))
+                    .textSelection(.enabled)
+            }
+            if controller.webAddresses.count > 1 {
+                Text("Der QR-Code nutzt die erste Adresse. Erreicht das Gerät sie nicht, probiere eine der anderen.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var formattedPIN: String {
+        let pin = controller.webPIN
+        guard pin.count == 6 else { return pin }
+        return String(pin.prefix(3)) + " " + String(pin.suffix(3))
     }
 
     private func row(_ title: String, _ value: String) -> some View {
         HStack(alignment: .firstTextBaseline) {
             Text(title)
                 .foregroundColor(.secondary)
-                .frame(width: 130, alignment: .leading)
+                .frame(width: 150, alignment: .leading)
             Text(value)
         }
     }

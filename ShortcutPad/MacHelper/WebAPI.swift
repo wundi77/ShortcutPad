@@ -106,7 +106,11 @@ final class WebAPI {
     func handle(_ request: WebServer.Request) -> WebServer.Response {
         switch (request.method, request.path) {
         case ("GET", "/"), ("GET", "/index.html"):
+            onLog("Webseite wurde aufgerufen")
             return .html(WebAssets.indexHTML)
+
+        case ("GET", "/favicon.ico"):
+            return .text("", status: 404)
 
         case ("POST", "/api/pair"):
             return pair(request)
@@ -143,6 +147,12 @@ final class WebAPI {
             return .json(WebTriggerResult(ok: outcome.ok, message: outcome.message))
 
         default:
+            if request.method == "GET" && !request.path.hasPrefix("/api/") {
+                // Ungewöhnliche Adresse (z. B. mit angehängtem Code): trotzdem die Seite ausliefern, sie liest den Code selbst.
+                onLog("Webseite wurde über „\(request.path)“ aufgerufen")
+                return .html(WebAssets.indexHTML)
+            }
+            onLog("Web: unbekannte Anfrage \(request.method) \(request.path)")
             return .text("Nicht gefunden", status: 404)
         }
     }

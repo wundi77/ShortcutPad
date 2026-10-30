@@ -274,7 +274,10 @@ final class HelperController: ObservableObject {
         }
 
         // Gespeicherter Zustand: löst über didSet das Starten aus.
-        if UserDefaults.standard.bool(forKey: HelperController.webEnabledKey) {
+        // Beim allerersten Start ist die Webseite an, damit QR-Code und Kopplungscode sofort sichtbar sind.
+        // Danach gilt die letzte Einstellung. Zugriff geht weiterhin nur mit Kopplungscode bzw. Token.
+        let stored = UserDefaults.standard.object(forKey: HelperController.webEnabledKey) as? Bool
+        if stored ?? true {
             webEnabled = true
         }
     }

@@ -3,7 +3,26 @@ import Darwin
 
 enum LocalNetwork {
     /// IPv4-Adressen der WLAN-/Ethernet-Schnittstellen (en0, en1 …) ohne Link-Local-Adressen.
+    /// Sortiert nach Wahrscheinlichkeit, vom iPad erreichbar zu sein: 192.168.x.x zuerst, dann 10.x.x.x, dann 172.16–31.x.x
+    /// (dort liegen oft virtuelle Netze wie Docker), alles andere zuletzt.
     static func ipv4Addresses() -> [String] {
+        let found = rawIPv4Addresses()
+        return found.enumerated().sorted { left, right in
+            let a = rank(left.element)
+            let b = rank(right.element)
+            return a != b ? a < b : left.offset < right.offset
+        }.map { $0.element }
+    }
+
+    private static func rank(_ address: String) -> Int {
+        if address.hasPrefix("192.168.") { return 0 }
+        if address.hasPrefix("10.") { return 1 }
+        let parts = address.split(separator: ".")
+        if parts.count == 4, parts[0] == "172", let second = Int(parts[1]), (16...31).contains(second) { return 2 }
+        return 3
+    }
+
+    private static func rawIPv4Addresses() -> [String] {
         var list: UnsafeMutablePointer<ifaddrs>?
         guard getifaddrs(&list) == 0, let first = list else { return [] }
         defer { freeifaddrs(list) }

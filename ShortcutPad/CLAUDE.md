@@ -38,7 +38,7 @@ Zum reinen Kompilieren ohne Signing: `CODE_SIGNING_ALLOWED=NO` an `xcodebuild` a
   Keine APIs verwenden, die neuer sind (kein `@Observable`, kein `onChange(of:initial:)` usw.).
 * `Shared/`: dort nur Foundation/Darwin, kein AppKit/SwiftUI (der Code soll später wieder von anderen Clients nutzbar sein).
 * Die Mac-App läuft ohne App-Sandbox (Tastendrücke an andere Programme). Nicht wieder einschalten.
-* Der Webserver im Helper (`WebServer.swift`, Port 8765) bindet bewusst auf alle Interfaces, ist aber standardmäßig aus
+* Der Webserver im Helper (`WebServer.swift`, Port 8765) bindet bewusst auf alle Interfaces, ist ab dem ersten Start an (Schalter im Verbindungsfenster)
   und nur mit Kopplungscode/Token nutzbar (`WebAPI.swift`). Die Seite steckt als Raw-String in `WebAssets.swift`
   (`#"""…"""#`, damit JavaScript-Backslashes unverändert bleiben). Das JS nutzt bewusst kein Framework und nur ältere Syntax.
 * Jeder Tastendruck läuft über `HelperController.executeShortcut(_:source:)`; neue Wege dort anschließen, nicht daran vorbei.

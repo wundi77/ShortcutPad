@@ -20,7 +20,7 @@ const general={id:'S2',name:'Allgemein',appBundleID:null,appName:null,autoSwitch
 http.createServer((req,res)=>{
   let body='';req.on('data',d=>body+=d);req.on('end',()=>{
     const send=(code,obj)=>{res.writeHead(code,{'Content-Type':'application/json'});res.end(JSON.stringify(obj));};
-    if(req.url==='/'||req.url.startsWith('/?')){res.writeHead(200,{'Content-Type':'text/html'});return res.end(html);}
+    if(req.method==='GET'&&!req.url.startsWith('/api/')&&!req.url.startsWith('/__')){res.writeHead(200,{'Content-Type':'text/html'});return res.end(html);}
     if(req.url==='/__state'){Object.assign(state,JSON.parse(body||'{}'));return send(200,state);}
     if(req.url==='/__log')return send(200,state.log);
     if(state.down){req.socket.destroy();return;}
